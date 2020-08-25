@@ -1,0 +1,7 @@
+.articles-viewer {
+  display: flex;
+  background-color: #272727ff;
+  overflow: hidden;
+  flex: 1 1 50%;
+  flex-flow: column;
+}

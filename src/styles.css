@@ -1,0 +1,18 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.not-header {
+  display: flex;
+  flex-grow: 1;
+  background-color: #272727ff;
+  overflow: hidden;
+}
+
+.articles-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
