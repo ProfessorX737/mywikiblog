@@ -1,23 +1,8 @@
-import {
-  INSERT_NEW_CHILD_CELL,
-  SET_CELL_CONTENT,
-  TOGGLE_CELL_EXPAND,
-  TOGGLE_CELL_EDIT,
-  ADD_TAB,
-  CLOSE_TAB,
-  SPLIT_VIEW,
-  CHANGE_TAB,
-  SET_TABS,
-  SET_CELL_CHILDREN,
-  SET_STORE,
-  SET_TAB_VIEW,
-  DELETE_VIEW,
-} from "./actionTypes"
+import * as types from "./actionTypes"
 
 export function insertNewChildCell({
   view,
   viewPath,
-  currTabId,
   parentId,
   parentVid,
   newId,
@@ -25,7 +10,16 @@ export function insertNewChildCell({
   childCells = {},
 }) {
   return ({
-    type: INSERT_NEW_CHILD_CELL,
+    type: types.INSERT_NEW_CHILD_CELL,
+    payload: arguments[0]
+  })
+}
+
+export function insertCells({
+  cells,
+}) {
+  return ({
+    type: types.INSERT_CELLS,
     payload: arguments[0]
   })
 }
@@ -34,7 +28,7 @@ export function setCellContent({
   cellId, content
 }) {
   return ({
-    type: SET_CELL_CONTENT,
+    type: types.SET_CELL_CONTENT,
     payload: arguments[0]
   })
 }
@@ -42,11 +36,10 @@ export function setCellContent({
 export function toggleCellExpand({
   view,
   viewPath,
-  currTabId,
   vid
 }) {
   return ({
-    type: TOGGLE_CELL_EXPAND,
+    type: types.TOGGLE_CELL_EXPAND,
     payload: arguments[0]
   })
 }
@@ -54,11 +47,10 @@ export function toggleCellExpand({
 export function toggleCellEdit({
   view,
   viewPath,
-  currTabId,
   vid
 }) {
   return ({
-    type: TOGGLE_CELL_EDIT,
+    type: types.TOGGLE_CELL_EDIT,
     payload: arguments[0]
   })
 }
@@ -68,7 +60,7 @@ export function addTab({
   tabId
 }) {
   return ({
-    type: ADD_TAB,
+    type: types.ADD_TAB,
     payload: arguments[0]
   })
 }
@@ -80,7 +72,7 @@ export function closeTab({
   tabIndex
 }) {
   return ({
-    type: CLOSE_TAB,
+    type: types.CLOSE_TAB,
     payload: arguments[0]
   })
 }
@@ -91,7 +83,7 @@ export function splitView({
   direction,
 }) {
   return ({
-    type: SPLIT_VIEW,
+    type: types.SPLIT_VIEW,
     payload: arguments[0]
   })
 }
@@ -101,7 +93,7 @@ export function changeTab({
   tabId
 }) {
   return ({
-    type: CHANGE_TAB,
+    type: types.CHANGE_TAB,
     payload: arguments[0]
   })
 }
@@ -111,7 +103,7 @@ export function setTabs({
   newTabs
 }) {
   return ({
-    type: SET_TABS,
+    type: types.SET_TABS,
     payload: arguments[0]
   })
 }
@@ -121,7 +113,7 @@ export function setCellChildren({
   newChildren
 }) {
   return ({
-    type: SET_CELL_CHILDREN,
+    type: types.SET_CELL_CHILDREN,
     payload: arguments[0]
   })
 }
@@ -130,7 +122,7 @@ export function setStore({
   store
 }) {
   return ({
-    type: SET_STORE,
+    type: types.SET_STORE,
     payload: arguments[0]
   })
 }
@@ -140,16 +132,43 @@ export function setTabView({
   tabView
 }) {
   return ({
-    type: SET_TAB_VIEW,
+    type: types.SET_TAB_VIEW,
     payload: arguments[0]
   });
 }
 
 export function deleteView({
-  viewPath,
+  viewPath
 }) {
   return ({
-    type: DELETE_VIEW,
+    type: types.DELETE_VIEW,
     payload: arguments[0]
   });
+}
+
+export function fetchCells({
+  cellIds
+}) {
+  return ({
+    type: types.FETCH_CELLS,
+    payload: arguments[0]
+  })
+}
+
+export function fetchChildCells({
+  cellId
+}) {
+  return ({
+    type: types.FETCH_CHILD_CELLS,
+    payload: arguments[0]
+  })
+}
+
+export function fetchUserInit({
+  email
+}) {
+  return ({
+    type: types.FETCH_USER_INIT,
+    payload: arguments[0]
+  })
 }

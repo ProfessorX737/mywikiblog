@@ -1,0 +1,31 @@
+.cell-wrapper {
+  display: flex;
+  max-width: 600px;
+  align-items: center;
+}
+
+.cell-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3em;
+  height: 1.3em;
+  border-radius: 1.3em;
+  z-index: 2;
+  margin: 0 0.3em 0 0.3em;
+  overflow: hidden;
+}
+
+.cell-wrapper:hover > .cell-bar {
+  background-color: #2196f3;
+  transition: all 0.5s;
+}
+
+.content-wrapper {
+  width: 100%;
+  background-color: white;
+  border: 2px solid white;
+  min-height: 1.5em;
+  outline-color: #2196f3;
+  border-bottom: 1px solid #eeeeee;
+}

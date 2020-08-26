@@ -45,15 +45,15 @@ class CellTabs extends React.Component {
     if (evt.pullMode) {
       if (evt.to === this.myrefs["sortable-tabs"]) {
         // a tab was dropped in from another list
-        const id = this.props.tabs[evt.newIndex].id;
+        const id = this.props.view.tabs[evt.newIndex].id;
         this.onChangeTab(id);
       } else if (evt.from === this.myrefs["sortable-tabs"]) {
         // a tab was dropped into another list
-        if (this.props.tabs.length === 0) {
+        if (this.props.view.tabs.length === 0) {
           this.onChangeTab(0);
         } else {
-          const inc = evt.oldIndex === this.props.tabs.length ? -1 : 0;
-          const ntab = this.props.tabs[evt.oldIndex + inc];
+          const inc = evt.oldIndex === this.props.view.tabs.length ? -1 : 0;
+          const ntab = this.props.view.tabs[evt.oldIndex + inc];
           this.onChangeTab(ntab.id);
         }
       }
@@ -189,8 +189,7 @@ class CellTabs extends React.Component {
                   className={clsx(
                     tab.id === this.props.view.currTabId
                       ? "sel-article-tab"
-                      : "article-tab"//,
-                    // tab.id < 0 && ".dummy-tab"
+                      : "article-tab"
                   )}
                   onClick={() => {
                     this.onChangeTab(tab.id);

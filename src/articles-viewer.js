@@ -8,7 +8,7 @@ import {
 import CellTabs from "./cell-tabs";
 import "./articles-viewer.css"
 
-class ArticlesViewer extends React.PureComponent {
+class _ArticlesViewer extends React.PureComponent {
   render() {
     return (
       <div
@@ -35,12 +35,12 @@ class ArticlesViewer extends React.PureComponent {
               view={this.props.view}
               viewPath={this.props.viewPath}
             />
-            {/* {this.props.cells[this.props.view.currTabId] && (
+            {this.props.cells[this.props.view.currTabId] && (
               <Article
                 view={this.props.view}
                 viewPath={this.props.viewPath}
               />
-            )} */}
+            )}
           </div>
         )}
       </div>
@@ -48,19 +48,21 @@ class ArticlesViewer extends React.PureComponent {
   }
 }
 
-ArticlesViewer.propTypes = {
+_ArticlesViewer.propTypes = {
   view: PropTypes.object.isRequired,
   viewPath: PropTypes.array
 };
 
-ArticlesViewer.defaultProps = {
+_ArticlesViewer.defaultProps = {
   viewPath: []
 };
 
-export default connect(
+const ArticlesViewer = connect(
   (state) => ({
     cells: state.cells,
     viewTree: state.viewTree
   }),
   { splitView }
-)(ArticlesViewer);
+)(_ArticlesViewer);
+
+export default ArticlesViewer;

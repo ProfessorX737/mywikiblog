@@ -1,4 +1,5 @@
 export const INSERT_NEW_CHILD_CELL = "INSERT_NEW_CHILD_CELL";
+export const INSERT_CELLS = "INSERT_CELLS";
 export const SET_CELL_CONTENT = "SET_CELL_CONTENT";
 export const TOGGLE_CELL_EXPAND = "TOGGLE_CELL_EXPAND";
 export const TOGGLE_CELL_EDIT = "TOGGLE_CELL_EDIT";
@@ -11,3 +12,6 @@ export const SET_CELL_CHILDREN = "SET_CELL_CHILDREN";
 export const SET_STORE = "SET_STORE";
 export const SET_TAB_VIEW = "SET_TAB_VIEW";
 export const DELETE_VIEW = "DELETE_VIEW";
+export const FETCH_CELLS = "FETCH_CELLS";
+export const FETCH_CHILD_CELLS = "FETCH_CHILD_CELLS";
+export const FETCH_USER_INIT = "FETCH_USER";

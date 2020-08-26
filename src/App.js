@@ -4,15 +4,18 @@ import TitleBar from "./title-bar";
 import ViewPort from "./view-port";
 import NavPane from "./nav-pane";
 import ArticlesViewer from "./articles-viewer";
-import axios from "axios";
 import assert from "assert";
-import { connect } from "react-redux"
+import { connect } from "react-redux";
 import { 
-  setStore
-} from "./redux/actions"
+  setStore,
+  fetchCells,
+  fetchUserInit,
+} from "./redux/actions";
+// import {
+//   fetchUser,
+//   fetchCells
+// } from "./requests";
 
-// const server = "https://www.xavierunderstands.com"
-const server = "http://localhost:5000";
 const lsViewKey = "xavierunderstandsview";
 const lsArticlesKey = "xavierunderstandsarticles";
 
@@ -48,53 +51,48 @@ class App extends React.Component {
         this.defaultFetch();
         return;
       }
-      const cellList = await this.fetchCellIds(ids);
-      cells = {};
-      // transform articleList to a article map (id => articleData)
-      for(let i = 0; i < cellList.length; i++) {
-        cells[cellList[i]._id] = {...cellList[i], id: cellList[i]._id};
-      }
-      // clean the view based on new cell data
-      viewTree = this.recreateView(viewTree, cells);
-      this.props.setStore({
-        cells,
-        viewTree
-      })
-      // todo: remove setState without crashing app
-      this.setState({
-        articles: cells,
-        view: viewTree
-      })
+
+      fetchCells(
+        { ids },
+        cellList => {
+          cells = {};
+          // transform articleList to a article map (id => articleData)
+          for(let i = 0; i < cellList.length; i++) {
+            cells[cellList[i]._id] = {...cellList[i], id: cellList[i]._id};
+          }
+          // clean the view based on new cell data
+          viewTree = this.recreateView(viewTree, cells);
+          this.props.setStore({
+            cells,
+            viewTree
+          })
+        }
+      );
     }
   }
   
-  // The default fetch fetches just the user cell
-  defaultFetch = async () => {
-    axios.get(`${server}/api/user`, {
-      params: {
-        email: "xavierpoon737@gmail.com"
-      }
-    }).then(({ data }) => {
-      const store = {
-        cells: {
-          [data._id]: { ...data, id: data._id }
-        },
-        viewTree: {
-          id: "1",
-          currTabId: data._id,
-          tabs: [{id: data._id}],
-          tabsView: {
-            [data._id]: {}
-          },
-          children: []
-        }
-      }
-      this.props.setStore({store});
-      // todo: remove next line without crashing app
-      this.setState(store);
-    }).catch(err => {
-      console.log(err);
-    });
+  defaultFetch = () => {
+    this.props.fetchUserInit({ email: "xavierpoon737@gmail.com"});
+    // fetchUser(
+    //   {email: "xavierpoon737@gmail.com"},
+    //   data => {
+    //     const store = {
+    //       cells: {
+    //         [data._id]: { ...data, id: data._id }
+    //       },
+    //       viewTree: {
+    //         id: "1",
+    //         currTabId: data._id,
+    //         tabs: [{id: data._id}],
+    //         tabsView: {
+    //           [data._id]: {}
+    //         },
+    //         children: []
+    //       }
+    //     }
+    //     this.props.setStore({store});
+    //   }
+    // )
   }
 
   // restore and clean the old saved view
@@ -112,7 +110,7 @@ class App extends React.Component {
       if(articles[tabId]) {
         tabsView[tabId] = {};
         for(const vid in view.tabsView[tabId]) {
-          const id = vid.replace(/_[0-9]+$/,'');
+          const id = vid.replace(/_.*$/,'');
           if(articles[id]) {
             tabsView[tabId][vid] = view.tabsView[tabId][vid];
           }
@@ -130,15 +128,6 @@ class App extends React.Component {
       tabsView,
       children
     }
-  }
-
-  fetchCellIds = async ids => {
-    const {data} = await axios.get(`${server}/api/cells`, {
-      params: {
-        ids: ids
-      }
-    });
-    return data;
   }
 
   // get all required ids given the view and the articles
@@ -230,5 +219,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { setStore }
+  { setStore, fetchUserInit }
 )(App);
