@@ -7,13 +7,17 @@ import clsx from 'clsx'
 import {
   setCellChildren
 } from "./redux/actions";
+import update from 'immutability-helper';
+
+ReactSortable.prototype.onChoose = function (evt) {};
+ReactSortable.prototype.onUnchoose = function (evt) {};
 
 const dragGroup = cells => ({
   name: "cells",
   put: (to, from, el) => {
-    const id = el.getAttribute("id");
-    const toChilds = cells[to.options.id].children;
+    const toChilds = cells[to.options.cellId].children;
     // If the target article already contains a cell with the same id don't add it
+    const id = el.getAttribute("id");
     for (let i = 0; i < toChilds.length; i++) {
       if (toChilds[i].id === id) return false;
     }
@@ -22,7 +26,7 @@ const dragGroup = cells => ({
   // pull: "clone"
   pull: (to, from, el) => {
     // if dragging between cells between different views then clone
-    if (to.options.viewid !== from.options.viewid) {
+    if (to.options.viewId !== from.options.viewId) {
       return "clone";
     }
     // if dragging between cells within the same view then move the cells
@@ -34,18 +38,16 @@ const getCellVid = (id, path) => {
   return `${id}_${path}`;
 }
 
-export default class CellTree extends React.PureComponent {
-  render() {
-    return (
-      <CellTreeRecurse
-        isRoot={true}
-        cellId={this.props.view.currTabId}
-        renderCell={this.props.renderCell}
-        view={this.props.view}
-        cellPath=""
-      />
-    )
-  }
+export default function CellTree(props) {
+  return (
+    <CellTreeRecurse
+      isRoot={true}
+      cellId={props.view.currTabId}
+      renderCell={props.renderCell}
+      view={props.view}
+      cellPath=""
+    />
+  )
 }
 
 CellTree.propTypes = {
@@ -53,7 +55,7 @@ CellTree.propTypes = {
   renderCell: PropTypes.func.isRequired,
 }
 
-function _CellTreeRecurse(props) {
+function CellTreeRecurse_(props) {
   const {
     isRoot,
     cellId,
@@ -65,7 +67,7 @@ function _CellTreeRecurse(props) {
   } = props;
   const children = cells[cellId]?.children || [];
   const cellVid = getCellVid(cellId, cellPath);
-  const isExpanded = view.tabsView[view.currTabId]?.[cellVid];
+  const isExpanded = view.tabsView[view.currTabId]?.[cellVid]?.isExpanded;
   return (
     <React.Fragment>
       {!isRoot && renderCell({cellId, cellVid})}
@@ -76,14 +78,16 @@ function _CellTreeRecurse(props) {
           }
           group={dragGroup(cells)}
           list={children}
-          setList={newChildren => {setCellChildren({
+          setList={newChildren => { setCellChildren({
             parentId: props.cellId,
             newChildren
           })}}
           style={{
-            marginLeft: isRoot ? "0" : "1em"
+            margin: `0 auto 0 ${isRoot ? 'auto' : '1em'}`
           }}
-          viewid={view.id}
+          viewId={view.id}
+          cellId={cellId}
+          handle=".cell-handle"
         >
           {children.map((child, index) => {
             return (
@@ -102,7 +106,7 @@ function _CellTreeRecurse(props) {
   )
 }
 
-_CellTreeRecurse.propTypes = {
+CellTreeRecurse_.propTypes = {
   isRoot: PropTypes.bool,
   cellId: PropTypes.string.isRequired,
   renderCell: PropTypes.func.isRequired,
@@ -110,11 +114,11 @@ _CellTreeRecurse.propTypes = {
   cellPath: PropTypes.string.isRequired
 }
 
-_CellTreeRecurse.defaultProps = {
+CellTreeRecurse_.defaultProps = {
   isRoot: false,
 }
 
 const CellTreeRecurse = connect(
   state => ({ cells: state.cells }),
   { setCellChildren }
-)(_CellTreeRecurse);
+)(CellTreeRecurse_);

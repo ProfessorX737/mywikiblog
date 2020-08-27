@@ -9,9 +9,8 @@ import {
 
 function MarkdownCell(props) {
   const cellData = {
-    content: "*fetching data...",
-    ...props.cells[props.cellId],
-    ...props.view.tabsView[props.view.currTabId]?.[props.cellVid]
+    content: "*fetching content...*",
+    ...props.cellData
   }
   const onEditorKeyDown = evt => {
     evt.stopPropagation();
@@ -34,7 +33,7 @@ function MarkdownCell(props) {
         }}
       />
       ) : (
-        <RenderMarkdown2 source={cellData.content} style={{ padding: "0 0.5em 0 0.5em", border: '1px solid white' }} />
+        <RenderMarkdown2 source={cellData.content} />
       )}
     </React.Fragment>
   )
@@ -42,8 +41,7 @@ function MarkdownCell(props) {
 
 MarkdownCell.propTypes = {
   view: PropTypes.object.isRequired,
-  cellId: PropTypes.string.isRequired,
-  cellVid: PropTypes.string.isRequired,
+  cellData: PropTypes.object.isRequired
 }
 
 export default connect(

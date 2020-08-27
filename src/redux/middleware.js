@@ -1,8 +1,25 @@
 import * as types from "./actionTypes";
 import * as actions from "./actions";
 import axios from 'axios';
+import assert from 'assert';
+
 const routeStem = "http://localhost:5000/api";
 
+const setCellChildrenLogic = store => next => action => {
+  if(action.type === types.SET_CELL_CHILDREN) {
+    const {
+      parentId,
+      newChildren,
+    } = action.payload;
+    try {
+      const children = store.getState().cells[parentId].children;
+      assert.notDeepEqual(children, newChildren);
+      next(action);
+    } catch(e) {}
+  } else {
+    next(action);
+  }
+}
 
 const fetchCellsLogic = store => next => action => {
   if(action.type === types.FETCH_CELLS) {
@@ -70,7 +87,12 @@ const fetchUserInitLogic = store => next => async action => {
   }
 } 
 
-export default [fetchCellsLogic, fetchChildCellsLogic, fetchUserInitLogic];
+export default [
+  fetchCellsLogic,
+  fetchChildCellsLogic,
+  fetchUserInitLogic,
+  setCellChildrenLogic
+];
 
 const mapCellList = cellList => {
   let cells = {};

@@ -67,13 +67,6 @@ export default function(state = initialState, action) {
       }
       return update(state, updateOp);
     }
-    case types.FETCH_CELLS: {
-      const {
-        ids
-      } = action.payload;
-      console.log('calling fetch cells reducer for no reason')
-      return state;
-    }
     case types.INSERT_CELLS: {
       const {
         cells
@@ -98,7 +91,7 @@ export default function(state = initialState, action) {
       const {
         view,
         viewPath,
-        vid
+        cellVid
       } = action.payload;
       const updateOp = {
         viewTree: getUpdateAtPathOb({
@@ -106,7 +99,7 @@ export default function(state = initialState, action) {
           path: viewPath,
           update: getToggleCellViewAttrUpdateOp({
             view,
-            vid,
+            cellVid,
             attrKey: "isExpanded"
           })
         })
@@ -117,7 +110,7 @@ export default function(state = initialState, action) {
       const {
         view,
         viewPath,
-        vid
+        cellVid,
       } = action.payload;
       const updateOp = {
         viewTree: getUpdateAtPathOb({
@@ -125,7 +118,7 @@ export default function(state = initialState, action) {
           path: viewPath,
           update: getToggleCellViewAttrUpdateOp({
             view,
-            vid,
+            cellVid,
             attrKey: "isEditing"
           })
         })
@@ -329,31 +322,31 @@ const getDefaultCellView = (vid) => {
 
 const getToggleCellViewAttrUpdateOp = ({
 	view,
-	vid,
+	cellVid,
 	attrKey
 }) => {
-	let cellView = {};
-	const oldCellView = view.tabsView[view.currTabId]?.[vid];
+	let cellViews = {};
+	const oldCellView = view.tabsView[view.currTabId]?.[cellVid];
 	if(oldCellView) {
-		cellView = {
-			[vid]: {
+		cellViews = {
+			[cellVid]: {
 				...oldCellView,
 				[attrKey]: !oldCellView[attrKey]
 			}
 		}
 	} else {
-		// if the cellView does not exist yet then assume all its boolean props are set to false
-		cellView = {
-			[vid]: {
-				...getDefaultCellView(vid),
+    // if the cellView does not exist yet then assume all its boolean props are set to false
+		cellViews = {
+			[cellVid]: {
+				...getDefaultCellView(cellVid),
 				[attrKey]: true
 			}
-		}
-	}
+    }
+  }
 	return (
 		getCellViewsUpdateOp({
 			view,
-			cellView
+			cellViews
 		})
 	)
 }
@@ -373,7 +366,7 @@ const getCellViewsUpdateOp = ({
 			}
 		}
 	} else {
-		// case types.when view.tabsView[currTabId] does not exist
+    // case types.when view.tabsView[currTabId] does not exist
 		update.tabsView = {
 			$merge: {
 				[view.currTabId]: cellViews

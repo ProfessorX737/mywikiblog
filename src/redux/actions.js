@@ -36,7 +36,7 @@ export function setCellContent({
 export function toggleCellExpand({
   view,
   viewPath,
-  vid
+  cellVid
 }) {
   return ({
     type: types.TOGGLE_CELL_EXPAND,
@@ -47,7 +47,7 @@ export function toggleCellExpand({
 export function toggleCellEdit({
   view,
   viewPath,
-  vid
+  cellVid
 }) {
   return ({
     type: types.TOGGLE_CELL_EDIT,
@@ -169,6 +169,15 @@ export function fetchUserInit({
 }) {
   return ({
     type: types.FETCH_USER_INIT,
+    payload: arguments[0]
+  })
+}
+
+export function fetchChildrenExpand({
+  cellId
+}) {
+  return ({
+    type: types.FETCH_CHILDREN_EXPAND,
     payload: arguments[0]
   })
 }

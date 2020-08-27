@@ -6,16 +6,14 @@ import {
   toggleCellExpand
 } from "./redux/actions";
 import "./cell-wrapper.css";
+import CellHandle from './cell-handle';
 
 function CellWrapper(props) {
   const {
     view,
     viewPath,
-    cellId,
-    cellVid,
-    cellWidth,
-    toggleCellExpand,
-    toggleCellEdit
+    cellData,
+    toggleCellExpand
   } = props;
   
   const onCellWrapperFocus = evt => {
@@ -33,21 +31,21 @@ function CellWrapper(props) {
     toggleCellExpand({
       view,
       viewPath,
-      vid: cellVid
+      cellVid: cellData.cellVid
     })
   }
 
   return (
     <div
       className="cell-wrapper"
-      style={{width: cellWidth}}
+      style={{ width: cellData.cellWidth }}
       onFocus={onCellWrapperFocus}
     >
-      <div
-        className="cell-bar"
-        onClick={onToggleExpandCell}
-      >
-      </div>
+      <CellHandle
+        view={view}
+        viewPath={viewPath}
+        cellData={cellData}
+      />
       <div className="content-wrapper">
         {props.children}
       </div>
@@ -58,8 +56,7 @@ function CellWrapper(props) {
 CellWrapper.propTypes = {
   view: PropTypes.object.isRequired,
   viewPath: PropTypes.array.isRequired,
-  cellVid: PropTypes.string.isRequired,
-  cellWidth: PropTypes.string,
+  cellData: PropTypes.object.isRequired,
 }
 
 export default connect(

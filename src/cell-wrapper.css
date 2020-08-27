@@ -4,7 +4,7 @@
   align-items: center;
 }
 
-.cell-bar {
+.cell-handle {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,7 +16,7 @@
   overflow: hidden;
 }
 
-.cell-wrapper:hover > .cell-bar {
+.cell-wrapper:hover > .cell-handle {
   background-color: #2196f3;
   transition: all 0.5s;
 }
@@ -28,4 +28,5 @@
   min-height: 1.5em;
   outline-color: #2196f3;
   border-bottom: 1px solid #eeeeee;
+  padding: 0 0.5em 0 0.5em;
 }

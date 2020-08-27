@@ -35,17 +35,23 @@ class Article extends React.Component {
   }
 
   renderCell = ({cellId, cellVid}) => {
+    const cellData = {
+      cellId,
+      cellVid,
+      children: [],
+      ...this.props.cells[cellId],
+      ...this.props.view.tabsView[this.props.view.currTabId]?.[cellVid],
+      cellWidth: this.getArticleWidth()
+    }
     return (
       <CellWrapper
         view={this.props.view}
         viewPath={this.props.viewPath}
-        cellVid={cellVid}
-        cellWidth={this.getArticleWidth()}
+        cellData={cellData}
       >
         <MarkdownCell
           view={this.props.view}
-          cellId={cellId}
-          cellVid={cellVid}
+          cellData={cellData}
         />
       </CellWrapper>
     )
@@ -72,6 +78,9 @@ Article.propTypes = {
 }
 
 export default connect(
-  state => ({cells: state.cells}),
+  state => ({
+    cells: state.cells,
+    viewTree: state.viewTree
+  }),
   { insertCells, fetchCells, fetchChildCells }
 )(Article)

@@ -7,14 +7,9 @@ import ArticlesViewer from "./articles-viewer";
 import assert from "assert";
 import { connect } from "react-redux";
 import { 
-  setStore,
   fetchCells,
   fetchUserInit,
 } from "./redux/actions";
-// import {
-//   fetchUser,
-//   fetchCells
-// } from "./requests";
 
 const lsViewKey = "xavierunderstandsview";
 const lsArticlesKey = "xavierunderstandsarticles";
@@ -72,27 +67,7 @@ class App extends React.Component {
   }
   
   defaultFetch = () => {
-    this.props.fetchUserInit({ email: "xavierpoon737@gmail.com"});
-    // fetchUser(
-    //   {email: "xavierpoon737@gmail.com"},
-    //   data => {
-    //     const store = {
-    //       cells: {
-    //         [data._id]: { ...data, id: data._id }
-    //       },
-    //       viewTree: {
-    //         id: "1",
-    //         currTabId: data._id,
-    //         tabs: [{id: data._id}],
-    //         tabsView: {
-    //           [data._id]: {}
-    //         },
-    //         children: []
-    //       }
-    //     }
-    //     this.props.setStore({store});
-    //   }
-    // )
+    this.props.fetchUserInit({ email: "xavierpoon737@gmail.com" });
   }
 
   // restore and clean the old saved view
@@ -219,5 +194,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { setStore, fetchUserInit }
+  { fetchUserInit }
 )(App);
