@@ -44,14 +44,57 @@ const fetchChildCellsLogic = store => next => async action => {
     try {
       const cells = store.getState().cells;
       const children = cells[action.payload.cellId].children;
-      const ids = reduceCellsToIds(children);
+      let ids = reduceCellsToIds(children);
+      ids.push(action.payload.cellId);
       const cellList = await axios.get(`${routeStem}/cells`, {
         params: { ids }
       }).then(res => res.data)
       const newCells = mapCellList(cellList);
+      console.log(newCells)
       next(actions.insertCells({ cells: newCells }));
     } catch(e) {
       console.log(e);
+    }
+  } else {
+    next(action);
+  }
+}
+
+const fetchChildCellsToggleExpand = store => next => async action => {
+  if(action.type === types.FETCH_CHILD_CELLS_TOGGLE_EXPAND) {
+    const {
+      view,
+      viewPath,
+      cellId,
+      cellVid,
+      isExpanded
+    } = action.payload;
+    if(isExpanded){
+      next(actions.toggleCellExpand({
+        view,
+        viewPath,
+        cellVid
+      }))
+    } else {
+      try {
+        const cells = store.getState().cells;
+        const children = cells[cellId].children;
+        let ids = reduceCellsToIds(children);
+        ids.push(cellId);
+        const cellList = await axios.get(`${routeStem}/cells`, {
+          params: { ids }
+        }).then(res => res.data)
+        const newCells = mapCellList(cellList);
+        console.log(newCells)
+        next(actions.insertChildCellsToggleExpand({
+          view,
+          viewPath,
+          cellVid,
+          newCells
+        }));
+      } catch(e) {
+        console.log(e);
+      }
     }
   } else {
     next(action);
@@ -91,7 +134,8 @@ export default [
   fetchCellsLogic,
   fetchChildCellsLogic,
   fetchUserInitLogic,
-  setCellChildrenLogic
+  setCellChildrenLogic,
+  fetchChildCellsToggleExpand
 ];
 
 const mapCellList = cellList => {

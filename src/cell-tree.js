@@ -34,10 +34,6 @@ const dragGroup = cells => ({
   } 
 })
 
-const getCellVid = (id, path) => {
-  return `${id}_${path}`;
-}
-
 export default function CellTree(props) {
   return (
     <CellTreeRecurse
@@ -66,7 +62,7 @@ function CellTreeRecurse_(props) {
     setCellChildren
   } = props;
   const children = cells[cellId]?.children || [];
-  const cellVid = getCellVid(cellId, cellPath);
+  const cellVid = `${cellId}_${cellPath}`;
   const isExpanded = view.tabsView[view.currTabId]?.[cellVid]?.isExpanded;
   return (
     <React.Fragment>

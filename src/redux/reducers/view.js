@@ -296,6 +296,29 @@ export default function(state = initialState, action) {
         viewTree: newViewTree
       };
     }
+    case types.INSERT_CHILD_CELLS_TOGGLE_EXPAND: {
+      const {
+        view,
+        viewPath,
+        cellVid,
+        newCells
+      } = action.payload;
+      const updateOb = {
+        cells: {
+          $merge: newCells
+        },
+        viewTree: getUpdateAtPathOb({
+          treeData: state.viewTree,
+          path: viewPath,
+          update: getToggleCellViewAttrUpdateOp({
+            view,
+            cellVid,
+            attrKey: "isExpanded"
+          })
+        })
+      }
+      return update(state, updateOb);
+    }
     default: {
       return state;
     }

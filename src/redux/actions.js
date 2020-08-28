@@ -173,11 +173,27 @@ export function fetchUserInit({
   })
 }
 
-export function fetchChildrenExpand({
-  cellId
+export function fetchChildCellsToggleExpand({
+  view,
+  viewPath,
+  cellId,
+  cellVid,
+  isExpanded
 }) {
   return ({
-    type: types.FETCH_CHILDREN_EXPAND,
+    type: types.FETCH_CHILD_CELLS_TOGGLE_EXPAND,
+    payload: arguments[0]
+  })
+}
+
+export function insertChildCellsToggleExpand({
+  view,
+  viewPath,
+  cellVid,
+  newCells
+}) {
+  return ({
+    type: types.INSERT_CHILD_CELLS_TOGGLE_EXPAND,
     payload: arguments[0]
   })
 }

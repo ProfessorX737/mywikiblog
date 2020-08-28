@@ -9,8 +9,7 @@ import PropTypes from 'prop-types';
 import { connect } from "react-redux";
 import "./cell-wrapper.css";
 import {
-  toggleCellExpand,
-  fetchChildCells
+  fetchChildCellsToggleExpand
 } from "./redux/actions";
 
 function CellHandle(props) {
@@ -18,18 +17,17 @@ function CellHandle(props) {
     view,
     viewPath,
     cellData,
-    toggleCellExpand,
-    fetchChildCells
+    fetchChildCellsToggleExpand
   } = props;
 
-  const onToggleCellExpand = () => {
-    toggleCellExpand({
+  const onToggleCellExpand = evt => {
+    fetchChildCellsToggleExpand({
       view,
       viewPath,
-      cellVid: cellData.cellVid
+      cellId: cellData.cellId,
+      cellVid: cellData.cellVid,
+      isExpanded: cellData.isExpanded
     })
-    // todo only fetch if neccessary
-    fetchChildCells({ cellId: cellData.cellId });
   }
 
   return (
@@ -77,5 +75,5 @@ CellHandle.propTypes = {
 
 export default connect(
   null,
-  { toggleCellExpand, fetchChildCells }
+  { fetchChildCellsToggleExpand }
 )(CellHandle);

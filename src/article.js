@@ -23,6 +23,8 @@ class Article extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    // when the current tab changes we want to fetch child cells
+    // of the cell with id = currTabId
     const currTabId = this.props.view.currTabId;
     if(currTabId !== prevProps.view.currTabId) {
       this.props.fetchChildCells({ cellId: currTabId });
@@ -49,13 +51,32 @@ class Article extends React.Component {
         viewPath={this.props.viewPath}
         cellData={cellData}
       >
-        <MarkdownCell
-          view={this.props.view}
-          cellData={cellData}
-        />
+          <MarkdownCell
+            view={this.props.view}
+            cellData={cellData}
+          />
       </CellWrapper>
     )
   }
+
+  getCellView(cellVid) {
+    return this.props.view.tabsView[this.props.view.currTabId]?.[cellVid];
+  }
+
+  // Recursively get all elements in the article in top down order
+  getArticleVidList = (id, path = "", isRoot = true) => {
+    const vid = `${id}_${path}`;
+    let keys = isRoot ? [] : [vid];
+    if (isRoot || Boolean(this.getCellView(vid)?.isExpanded)) {
+      const children = this.props.cells[id]?.children;
+      for (let i = 0; i < children.length; i++) {
+        keys.push(
+          ...this.getFlatElKeyList(children[i].id, `${path}c${i}`, false)
+        );
+      }
+    }
+    return keys;
+  };
 
   render() {
     return (

@@ -3,54 +3,57 @@ import { connect } from "react-redux";
 import PropTypes from 'prop-types';
 import {
   toggleCellEdit,
-  toggleCellExpand
 } from "./redux/actions";
 import "./cell-wrapper.css";
 import CellHandle from './cell-handle';
 
-function CellWrapper(props) {
-  const {
-    view,
-    viewPath,
-    cellData,
-    toggleCellExpand
-  } = props;
+class CellWrapper extends React.Component {
+  constructor(props) {
+    super(props)
+    this.contentRef = null;
+  }
+
+  componentDidMount() {
+    this.scrollContentIntoView();
+  }
   
-  const onCellWrapperFocus = evt => {
-    const cellWrapper = evt.target;
+  focusContent = () => {
+    this.contentRef.focus();
     setTimeout(() => {
-      cellWrapper.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-        inline: "center"
-      });
+      this.scrollContentIntoView();
     });
   }
 
-  const onToggleExpandCell = () => {
-    toggleCellExpand({
-      view,
-      viewPath,
-      cellVid: cellData.cellVid
+  scrollContentIntoView = () => {
+    if(this.contentRef) this.contentRef.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center"
     })
   }
 
-  return (
-    <div
-      className="cell-wrapper"
-      style={{ width: cellData.cellWidth }}
-      onFocus={onCellWrapperFocus}
-    >
-      <CellHandle
-        view={view}
-        viewPath={viewPath}
-        cellData={cellData}
-      />
-      <div className="content-wrapper">
-        {props.children}
+  render() {
+    return (
+      <div
+        className="cell-wrapper"
+        style={{ width: this.props.cellData.cellWidth }}
+        onClick={ this.focusContent }
+      >
+        <CellHandle
+          view={this.props.view}
+          viewPath={this.props.viewPath}
+          cellData={this.props.cellData}
+        />
+        <div
+          ref={el => {this.contentRef = el}}
+          className="content-wrapper"
+          tabIndex={-1}
+        >
+          {this.props.children}
+        </div>
       </div>
-    </div>
-  )
+    )
+  } 
 }
 
 CellWrapper.propTypes = {
@@ -61,5 +64,5 @@ CellWrapper.propTypes = {
 
 export default connect(
   null,
-  { toggleCellEdit, toggleCellExpand}
+  { toggleCellEdit }
 )(CellWrapper);
