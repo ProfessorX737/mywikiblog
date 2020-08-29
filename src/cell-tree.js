@@ -9,8 +9,8 @@ import {
 } from "./redux/actions";
 import update from 'immutability-helper';
 
-ReactSortable.prototype.onChoose = function (evt) {};
-ReactSortable.prototype.onUnchoose = function (evt) {};
+ReactSortable.prototype.onChoose = function (evt) { };
+ReactSortable.prototype.onUnchoose = function (evt) { };
 
 const dragGroup = cells => ({
   name: "cells",
@@ -31,10 +31,11 @@ const dragGroup = cells => ({
     }
     // if dragging between cells within the same view then move the cells
     return true;
-  } 
+  }
 })
 
 export default function CellTree(props) {
+  let cellIndex = 0;
   return (
     <CellTreeRecurse
       isRoot={true}
@@ -42,6 +43,7 @@ export default function CellTree(props) {
       renderCell={props.renderCell}
       view={props.view}
       cellPath=""
+      countCell={() => cellIndex++}
     />
   )
 }
@@ -59,14 +61,15 @@ function CellTreeRecurse_(props) {
     view,
     cellPath,
     cells,
-    setCellChildren
+    setCellChildren,
+    countCell,
   } = props;
   const children = cells[cellId]?.children || [];
   const cellVid = `${cellId}_${cellPath}`;
   const isExpanded = view.tabsView[view.currTabId]?.[cellVid]?.isExpanded;
   return (
     <React.Fragment>
-      {!isRoot && renderCell({cellId, cellVid})}
+      {!isRoot && renderCell({ cellId, cellVid, cellIndex: countCell() })}
       {(isExpanded || isRoot) && (
         <ReactSortable
           className={
@@ -74,10 +77,12 @@ function CellTreeRecurse_(props) {
           }
           group={dragGroup(cells)}
           list={children}
-          setList={newChildren => { setCellChildren({
-            parentId: props.cellId,
-            newChildren
-          })}}
+          setList={newChildren => {
+            setCellChildren({
+              parentId: props.cellId,
+              newChildren
+            })
+          }}
           style={{
             margin: `0 auto 0 ${isRoot ? 'auto' : '1em'}`
           }}
@@ -93,6 +98,7 @@ function CellTreeRecurse_(props) {
                 renderCell={props.renderCell}
                 view={props.view}
                 cellPath={`${cellPath}c${index}`}
+                countCell={countCell}
               />
             )
           })}
@@ -107,14 +113,16 @@ CellTreeRecurse_.propTypes = {
   cellId: PropTypes.string.isRequired,
   renderCell: PropTypes.func.isRequired,
   view: PropTypes.object.isRequired,
-  cellPath: PropTypes.string.isRequired
+  cellPath: PropTypes.string.isRequired,
+  countCell: PropTypes.func
 }
 
 CellTreeRecurse_.defaultProps = {
   isRoot: false,
+  cellIndex: -1
 }
 
 const CellTreeRecurse = connect(
-  state => ({ cells: state.cells }),
+  state => ({ cells: state.view.cells }),
   { setCellChildren }
 )(CellTreeRecurse_);

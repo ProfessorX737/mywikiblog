@@ -236,7 +236,7 @@ CellTabs.propTypes = {
 };
 
 export default connect(
-  state => ({ cells: state.cells }), 
+  state => ({ cells: state.view.cells }), 
   {
     changeTab,
     setTabs,

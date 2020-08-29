@@ -188,8 +188,8 @@ class App extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  cells: state.cells,
-  viewTree: state.viewTree
+  cells: state.view.cells,
+  viewTree: state.view.viewTree,
 })
 
 export default connect(

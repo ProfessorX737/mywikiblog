@@ -16,7 +16,7 @@ class CellWrapper extends React.Component {
   componentDidMount() {
     this.scrollContentIntoView();
   }
-  
+
   focusContent = () => {
     this.contentRef.focus();
     setTimeout(() => {
@@ -25,35 +25,53 @@ class CellWrapper extends React.Component {
   }
 
   scrollContentIntoView = () => {
-    if(this.contentRef) this.contentRef.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-        inline: "center"
+    if (this.contentRef) this.contentRef.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "center"
     })
   }
 
+  getContentClass = cellVid => {
+    const focusData = this.props.focusData;
+    if (focusData) {
+      if (focusData.viewId === this.props.view.id) {
+        if (focusData.tabId === this.props.view.currTabId) {
+          if (focusData.cellVid === cellVid) {
+            return "content-wrapper-focused";
+          }
+        }
+      }
+    }
+    return "content-wrapper";
+  }
+
   render() {
+    const {
+      view,
+      viewPath,
+      cellData
+    } = this.props;
     return (
       <div
         className="cell-wrapper"
-        style={{ width: this.props.cellData.cellWidth }}
-        onClick={ this.focusContent }
+        style={{ width: cellData.cellWidth }}
+        onClick={this.focusContent}
       >
         <CellHandle
-          view={this.props.view}
-          viewPath={this.props.viewPath}
-          cellData={this.props.cellData}
+          view={view}
+          viewPath={viewPath}
+          cellData={cellData}
         />
         <div
-          ref={el => {this.contentRef = el}}
-          className="content-wrapper"
-          tabIndex={-1}
+          ref={el => { this.contentRef = el }}
+          className={this.getContentClass(cellData.cellVid)}
         >
           {this.props.children}
         </div>
       </div>
     )
-  } 
+  }
 }
 
 CellWrapper.propTypes = {
@@ -63,6 +81,6 @@ CellWrapper.propTypes = {
 }
 
 export default connect(
-  null,
+  state => ({ focusData: state.focus.data }),
   { toggleCellEdit }
 )(CellWrapper);

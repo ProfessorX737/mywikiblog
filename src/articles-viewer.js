@@ -59,8 +59,8 @@ _ArticlesViewer.defaultProps = {
 
 const ArticlesViewer = connect(
   (state) => ({
-    cells: state.cells,
-    viewTree: state.viewTree
+    cells: state.view.cells,
+    viewTree: state.view.viewTree
   }),
   { splitView }
 )(_ArticlesViewer);

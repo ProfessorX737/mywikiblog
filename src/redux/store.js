@@ -1,7 +1,8 @@
 import { createStore, applyMiddleware } from "redux";
-import reducer from "./reducers/view";
-import * as types from "./actionTypes";
+import rootReducer from "./reducers";
 import middleware from "./middleware";
 
-// export default createStore(combineReducers({reducer}));
-export default createStore(reducer, applyMiddleware(...middleware));
+export default createStore(
+  rootReducer,
+  applyMiddleware(...middleware)
+);

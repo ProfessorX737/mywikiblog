@@ -24,6 +24,7 @@
   background-color: transparent;
   padding-top: 0.5em;
   max-height: 100%;
+  outline: none;
 }
 
 .node-options {

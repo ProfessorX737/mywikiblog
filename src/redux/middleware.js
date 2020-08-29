@@ -12,7 +12,7 @@ const setCellChildrenLogic = store => next => action => {
       newChildren,
     } = action.payload;
     try {
-      const children = store.getState().cells[parentId].children;
+      const children = store.getState().view.cells[parentId].children;
       assert.notDeepEqual(children, newChildren);
       next(action);
     } catch(e) {}
@@ -42,7 +42,7 @@ const fetchCellsLogic = store => next => action => {
 const fetchChildCellsLogic = store => next => async action => {
   if(action.type === types.FETCH_CHILD_CELLS) {
     try {
-      const cells = store.getState().cells;
+      const cells = store.getState().view.cells;
       const children = cells[action.payload.cellId].children;
       let ids = reduceCellsToIds(children);
       ids.push(action.payload.cellId);
@@ -50,7 +50,6 @@ const fetchChildCellsLogic = store => next => async action => {
         params: { ids }
       }).then(res => res.data)
       const newCells = mapCellList(cellList);
-      console.log(newCells)
       next(actions.insertCells({ cells: newCells }));
     } catch(e) {
       console.log(e);
@@ -77,7 +76,7 @@ const fetchChildCellsToggleExpand = store => next => async action => {
       }))
     } else {
       try {
-        const cells = store.getState().cells;
+        const cells = store.getState().view.cells;
         const children = cells[cellId].children;
         let ids = reduceCellsToIds(children);
         ids.push(cellId);
@@ -85,7 +84,6 @@ const fetchChildCellsToggleExpand = store => next => async action => {
           params: { ids }
         }).then(res => res.data)
         const newCells = mapCellList(cellList);
-        console.log(newCells)
         next(actions.insertChildCellsToggleExpand({
           view,
           viewPath,

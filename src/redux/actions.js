@@ -197,3 +197,19 @@ export function insertChildCellsToggleExpand({
     payload: arguments[0]
   })
 }
+
+// focus.js
+
+/**
+ * @param data
+ * @param {string} data.viewId
+ * @param {string} data.tabId
+ * @param {string} data.cellVid
+ * @param {number} data.cellIndex
+ */
+export function setFocusData(data) {
+  return {
+    type: types.SET_FOCUS_DATA,
+    payload: data
+  }
+}
