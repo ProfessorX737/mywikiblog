@@ -198,6 +198,18 @@ export function insertChildCellsToggleExpand({
   })
 }
 
+export function patchContentToggleEdit({
+  view,
+  viewPath,
+  cellVid,
+  cellId
+}) {
+  return ({
+    type: types.PATCH_CONTENT_TOGGLE_EDIT,
+    payload: arguments[0]
+  })
+}
+
 // focus.js
 
 /**

@@ -78,7 +78,7 @@ export default function(state = initialState, action) {
       })
     }
 		case types.SET_CELL_CONTENT: {
-			const { cellId, content } = action.playload;
+			const { cellId, content } = action.payload;
 			return update(state, {
 				cells: {
 					[cellId]: {
@@ -314,6 +314,34 @@ export default function(state = initialState, action) {
             view,
             cellVid,
             attrKey: "isExpanded"
+          })
+        })
+      }
+      return update(state, updateOb);
+    }
+    case types.PATCH_CONTENT_TOGGLE_EDIT: {
+      const {
+        view,
+        viewPath,
+        cellVid,
+        cellId,
+        content
+      } = action.payload; 
+      const updateOb = {
+        cells: {
+          [cellId]: {
+            content: {
+              $set: content
+            }
+          }
+        },
+        viewTree: getUpdateAtPathOb({
+          treeData: state.viewTree,
+          path: viewPath,
+          update: getToggleCellViewAttrUpdateOp({
+            view,
+            cellVid,
+            attrKey: "isEditing"
           })
         })
       }

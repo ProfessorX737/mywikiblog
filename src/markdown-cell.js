@@ -13,11 +13,13 @@ function MarkdownCell(props) {
     ...props.cellData
   }
   const onEditorKeyDown = evt => {
-    evt.stopPropagation();
+    if(!(evt.shiftKey && evt.key === "Enter")) {
+      evt.stopPropagation();
+    } 
   }
   const onContentChange = content => {
     props.setCellContent({
-      cellId: props.cellId,
+      cellId: cellData.cellId,
       content
     })
   }

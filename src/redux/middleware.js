@@ -2,11 +2,12 @@ import * as types from "./actionTypes";
 import * as actions from "./actions";
 import axios from 'axios';
 import assert from 'assert';
+import { CallToActionOutlined } from "@material-ui/icons";
 
 const routeStem = "http://localhost:5000/api";
 
 const setCellChildrenLogic = store => next => action => {
-  if(action.type === types.SET_CELL_CHILDREN) {
+  if (action.type === types.SET_CELL_CHILDREN) {
     const {
       parentId,
       newChildren,
@@ -15,32 +16,32 @@ const setCellChildrenLogic = store => next => action => {
       const children = store.getState().view.cells[parentId].children;
       assert.notDeepEqual(children, newChildren);
       next(action);
-    } catch(e) {}
+    } catch (e) { }
   } else {
     next(action);
   }
 }
 
 const fetchCellsLogic = store => next => action => {
-  if(action.type === types.FETCH_CELLS) {
+  if (action.type === types.FETCH_CELLS) {
     axios.get(`${routeStem}/cells`, {
       params: { ids: action.payload.cellIds }
     })
-    .then(res => res.data)
-    .then(cellList => {
-      const newCells = mapCellList(cellList);
-      next(actions.insertCells({ cells: newCells }));
-    })
-    .catch(error => {
-      console.log(error);
-    })
+      .then(res => res.data)
+      .then(cellList => {
+        const newCells = mapCellList(cellList);
+        next(actions.insertCells({ cells: newCells }));
+      })
+      .catch(error => {
+        console.log(error);
+      })
   } else {
     next(action);
   }
 }
 
 const fetchChildCellsLogic = store => next => async action => {
-  if(action.type === types.FETCH_CHILD_CELLS) {
+  if (action.type === types.FETCH_CHILD_CELLS) {
     try {
       const cells = store.getState().view.cells;
       const children = cells[action.payload.cellId].children;
@@ -51,7 +52,7 @@ const fetchChildCellsLogic = store => next => async action => {
       }).then(res => res.data)
       const newCells = mapCellList(cellList);
       next(actions.insertCells({ cells: newCells }));
-    } catch(e) {
+    } catch (e) {
       console.log(e);
     }
   } else {
@@ -60,7 +61,7 @@ const fetchChildCellsLogic = store => next => async action => {
 }
 
 const fetchChildCellsToggleExpand = store => next => async action => {
-  if(action.type === types.FETCH_CHILD_CELLS_TOGGLE_EXPAND) {
+  if (action.type === types.FETCH_CHILD_CELLS_TOGGLE_EXPAND) {
     const {
       view,
       viewPath,
@@ -68,7 +69,7 @@ const fetchChildCellsToggleExpand = store => next => async action => {
       cellVid,
       isExpanded
     } = action.payload;
-    if(isExpanded){
+    if (isExpanded) {
       next(actions.toggleCellExpand({
         view,
         viewPath,
@@ -90,7 +91,7 @@ const fetchChildCellsToggleExpand = store => next => async action => {
           cellVid,
           newCells
         }));
-      } catch(e) {
+      } catch (e) {
         console.log(e);
       }
     }
@@ -100,7 +101,7 @@ const fetchChildCellsToggleExpand = store => next => async action => {
 }
 
 const fetchUserInitLogic = store => next => async action => {
-  if(action.type === types.FETCH_USER_INIT) {
+  if (action.type === types.FETCH_USER_INIT) {
     try {
       const user = await axios.get(`${routeStem}/user`, {
         params: { email: action.payload.email }
@@ -112,7 +113,7 @@ const fetchUserInitLogic = store => next => async action => {
         viewTree: {
           id: "1",
           currTabId: user._id,
-          tabs: [{id: user._id}],
+          tabs: [{ id: user._id }],
           tabsView: {
             [user._id]: {}
           },
@@ -120,20 +121,59 @@ const fetchUserInitLogic = store => next => async action => {
         }
       }
       next(actions.setStore({ store }));
-    } catch(e) {
+    } catch (e) {
       console.log(e);
     }
   } else {
     next(action);
   }
-} 
+}
+
+const patchContentToggleEditLogic = store => next => async action => {
+  if (action.type === types.PATCH_CONTENT_TOGGLE_EDIT) {
+    const {
+      view,
+      viewPath,
+      cellVid,
+      cellId
+    } = action.payload;
+    const isEditing = view.tabsView[view.currTabId]?.[cellVid]?.isEditing;
+    if (isEditing) {
+      const content = store.getState().view.cells[cellId].content;
+      try {
+        await axios.patch(`${routeStem}/cell-content`, {
+          id: cellId,
+          content: content
+        });
+        next(actions.patchContentToggleEdit({
+          view,
+          viewPath,
+          cellVid,
+          cellId,
+          content
+        }))
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      next(actions.toggleCellEdit({
+        view,
+        viewPath,
+        cellVid
+      }))
+    }
+  } else {
+    next(action);
+  }
+}
 
 export default [
   fetchCellsLogic,
   fetchChildCellsLogic,
   fetchUserInitLogic,
   setCellChildrenLogic,
-  fetchChildCellsToggleExpand
+  fetchChildCellsToggleExpand,
+  patchContentToggleEditLogic
 ];
 
 const mapCellList = cellList => {
