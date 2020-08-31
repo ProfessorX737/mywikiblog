@@ -2,7 +2,6 @@ import * as types from "./actionTypes";
 import * as actions from "./actions";
 import axios from 'axios';
 import assert from 'assert';
-import { CallToActionOutlined } from "@material-ui/icons";
 
 const routeStem = "http://localhost:5000/api";
 
@@ -167,13 +166,85 @@ const patchContentToggleEditLogic = store => next => async action => {
   }
 }
 
+const postNewChildCellExpandLogic = store => next => async action => {
+  if (action.type === types.POST_NEW_CHILD_CELL_EXPAND) {
+    const {
+      view,
+      viewPath,
+      parentId,
+      parentVid,
+      insertIndex = 0
+    } = action.payload;
+    try {
+      let childCells = {};
+      const cells = store.getState().view.cells;
+      const children = cells[parentId].children;
+      let fetchIds = reduceCellsToIds(children);
+      fetchIds.push(parentId);
+      // get updated parent and children cells
+      const cellList = await axios.get(`${routeStem}/cells`, {
+        params: { ids: fetchIds }
+      }).then(res => res.data);
+      childCells = mapCellList(cellList);
+      // make request to post a new cell
+      const { newId, newCell } = await axios.post(`${routeStem}/new-cell`, {
+        parentId,
+        index: insertIndex
+      }).then(res => res.data);
+      // create the new cell in childCells
+      childCells[newId] = { ...newCell, id: newCell._id };
+      next(actions.insertNewChildCellExpand({
+        view,
+        viewPath,
+        parentId,
+        parentVid,
+        newId,
+        insertIndex,
+        childCells
+      }));
+    } catch (e) {
+      console.log(e);
+    }
+  } else {
+    next(action);
+  }
+}
+
+const deleteChildLogic = store => next => async action => {
+  if (action.type === types.DELETE_CHILD) {
+    const {
+      parentId,
+      childIndex,
+      focusNextCell
+    } = action.payload;
+    try {
+      const cells = store.getState().view.cells;
+      const childId = cells[parentId].children[childIndex].id;
+      await axios.delete(`${routeStem}/link`, {
+        data: {
+          parentId,
+          childId
+        }
+      })
+      next(action);
+      focusNextCell();
+    } catch (e) {
+      console.log(e)
+    }
+  } else {
+    next(action);
+  }
+}
+
 export default [
   fetchCellsLogic,
   fetchChildCellsLogic,
   fetchUserInitLogic,
   setCellChildrenLogic,
   fetchChildCellsToggleExpand,
-  patchContentToggleEditLogic
+  patchContentToggleEditLogic,
+  postNewChildCellExpandLogic,
+  deleteChildLogic
 ];
 
 const mapCellList = cellList => {

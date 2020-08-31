@@ -17,9 +17,9 @@ const initialState = {
   cells: {}
 }
 
-export default function(state = initialState, action) {
+export default function (state = initialState, action) {
   switch (action.type) {
-    case types.INSERT_NEW_CHILD_CELL: {
+    case types.INSERT_NEW_CHILD_CELL_EXPAND: {
       const {
         view,
         viewPath,
@@ -27,15 +27,13 @@ export default function(state = initialState, action) {
         parentVid,
         newId,
         insertIndex = 0,
-        childCells = {},
+        childCells,
       } = action.payload;
-      // create the new cell in childCells
-      childCells[newId] = { id: newId, content: "", children: [] };
       const childVid = `${newId}_1`;
       let cellViews = { [childVid]: getDefaultCellView(childVid) };
       // check if parentCellView exists
       const parentCellView = view.tabsView[view.currTabId]?.[parentVid];
-      if(parentCellView) {
+      if (parentCellView) {
         cellViews[parentVid] = {
           ...parentCellView,
           isExpanded: true
@@ -51,10 +49,11 @@ export default function(state = initialState, action) {
       // so now we create the whole update object
       let updateOp = {
         cells: {
-          [parentId]: {
-            children: { $splice: [[insertIndex, 0, { id: newId }]]}
-          },
-          $merge: childCells
+          $merge: update(childCells, {
+            [parentId]: {
+              children: { $splice: [[insertIndex, 0, { id: newId }]] }
+            }
+          })
         },
         viewTree: getUpdateAtPathOb({
           treeData: state.viewTree,
@@ -65,7 +64,7 @@ export default function(state = initialState, action) {
           })
         })
       }
-      return update(state, updateOp);
+      return update(state, updateOp)
     }
     case types.INSERT_CELLS: {
       const {
@@ -77,15 +76,15 @@ export default function(state = initialState, action) {
         }
       })
     }
-		case types.SET_CELL_CONTENT: {
-			const { cellId, content } = action.payload;
-			return update(state, {
-				cells: {
-					[cellId]: {
-						content: { $set: content }
-					}
-				}
-			});
+    case types.SET_CELL_CONTENT: {
+      const { cellId, content } = action.payload;
+      return update(state, {
+        cells: {
+          [cellId]: {
+            content: { $set: content }
+          }
+        }
+      });
     }
     case types.TOGGLE_CELL_EXPAND: {
       const {
@@ -155,7 +154,7 @@ export default function(state = initialState, action) {
       } = action.payload;
       const isCurrTab = view.currTabId === tabId;
       let newCurrTabId = view.currTabId;
-      if(isCurrTab) {
+      if (isCurrTab) {
         const inc = tabIndex === view.tabs.length - 1 ? -1 : 1;
         newCurrTabId = view.tabs[tabIndex + inc]?.id || 0;
       }
@@ -186,7 +185,7 @@ export default function(state = initialState, action) {
         tabsView: {},
         children: [
           { ...update(view, {}), id: uuidv1() },
-          { 
+          {
             ...initialState.viewTree,
             id: uuidv1()
           }
@@ -326,7 +325,7 @@ export default function(state = initialState, action) {
         cellVid,
         cellId,
         content
-      } = action.payload; 
+      } = action.payload;
       const updateOb = {
         cells: {
           [cellId]: {
@@ -347,6 +346,22 @@ export default function(state = initialState, action) {
       }
       return update(state, updateOb);
     }
+    case types.DELETE_CHILD: {
+      const {
+        parentId,
+        childIndex
+      } = action.payload;
+      const updateOb = {
+        cells: {
+          [parentId]: {
+            children: {
+              $splice: [[childIndex, 1]]
+            }
+          }
+        }
+      }
+      return update(state, updateOb);
+    }
     default: {
       return state;
     }
@@ -364,65 +379,65 @@ const simplifyView = view => {
 };
 
 const getDefaultCellView = (vid) => {
-	return {
-		vid,
-		isEditing: false,
-		isExpanded: false
-	}
+  return {
+    vid,
+    isEditing: false,
+    isExpanded: false
+  }
 }
 
 const getToggleCellViewAttrUpdateOp = ({
-	view,
-	cellVid,
-	attrKey
+  view,
+  cellVid,
+  attrKey
 }) => {
-	let cellViews = {};
-	const oldCellView = view.tabsView[view.currTabId]?.[cellVid];
-	if(oldCellView) {
-		cellViews = {
-			[cellVid]: {
-				...oldCellView,
-				[attrKey]: !oldCellView[attrKey]
-			}
-		}
-	} else {
+  let cellViews = {};
+  const oldCellView = view.tabsView[view.currTabId]?.[cellVid];
+  if (oldCellView) {
+    cellViews = {
+      [cellVid]: {
+        ...oldCellView,
+        [attrKey]: !oldCellView[attrKey]
+      }
+    }
+  } else {
     // if the cellView does not exist yet then assume all its boolean props are set to false
-		cellViews = {
-			[cellVid]: {
-				...getDefaultCellView(cellVid),
-				[attrKey]: true
-			}
+    cellViews = {
+      [cellVid]: {
+        ...getDefaultCellView(cellVid),
+        [attrKey]: true
+      }
     }
   }
-	return (
-		getCellViewsUpdateOp({
-			view,
-			cellViews
-		})
-	)
+  return (
+    getCellViewsUpdateOp({
+      view,
+      cellViews
+    })
+  )
 }
 
 const getCellViewsUpdateOp = ({
   view,
   cellViews
 }) => {
-	let update = {
-		tabsView: {}
-	}
-	// case types.when view.tabsView[currTabId] exists
-	if(view.tabsView[view.currTabId]) {
-		update.tabsView = {
-			[view.currTabId]: {
-				$merge: cellViews
-			}
-		}
-	} else {
+  let update = {
+    tabsView: {}
+  }
+  // case types.when view.tabsView[currTabId] exists
+  if (view.tabsView[view.currTabId]) {
+    update.tabsView = {
+      [view.currTabId]: {
+        $merge: cellViews
+      }
+    }
+  } else {
     // case types.when view.tabsView[currTabId] does not exist
-		update.tabsView = {
-			$merge: {
-				[view.currTabId]: cellViews
-			}
-		}
+    update.tabsView = {
+      $merge: {
+        [view.currTabId]: cellViews
+      }
+    }
   }
   return update;
 }

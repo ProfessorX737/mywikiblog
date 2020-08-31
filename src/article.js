@@ -6,19 +6,23 @@ import "./article.css"
 import CellWrapper from './cell-wrapper'
 import MarkdownCell from "./markdown-cell"
 import {
-  insertNewChildCell,
   fetchChildCells,
 } from './redux/actions'
+import ReactResizeDetector from 'react-resize-detector'
 
 class Article extends React.Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      resized: 1
+      resized: false
     }
     this.myrefs = {}
     props.fetchChildCells({ cellId: props.view.currTabId });
+  }
+
+  componentDidMount() {
+    this.articleRef.focus();
   }
 
   componentDidUpdate(prevProps) {
@@ -30,9 +34,9 @@ class Article extends React.Component {
     }
   }
 
-  getArticleWidth = () => {
-    const plane = this.myrefs["plane"];
-    return plane ? `${this.myrefs["plane"].clientWidth}px` : '0px';
+  getArticleWidthPx = () => {
+    return this.articleRef ?
+      `${this.articleRef.clientWidth}px` : '0px';
   }
 
   renderCell = ({ cellId, cellVid, cellIndex }) => {
@@ -42,7 +46,7 @@ class Article extends React.Component {
       children: [],
       ...this.props.cells[cellId],
       ...this.props.view.tabsView[this.props.view.currTabId]?.[cellVid],
-      cellWidth: this.getArticleWidth(),
+      cellWidth: this.getArticleWidthPx(),
       cellIndex
     }
     return (
@@ -50,6 +54,7 @@ class Article extends React.Component {
           view={this.props.view}
           viewPath={this.props.viewPath}
           cellData={cellData}
+          articleRef={this.articleRef}
         >
           <MarkdownCell
             view={this.props.view}
@@ -60,16 +65,48 @@ class Article extends React.Component {
     )
   }
 
+  onKeyDown = evt => {
+    if (evt.key === 'j') {
+      evt.preventDefault();
+      let el = this.articleRef;
+      while(el && el.className !== "cell-wrapper") {
+        el = el.firstChild;
+      }
+      const first = el?.children[1];
+      first && first.focus();
+    } else if (evt.key === 'k') {
+      evt.preventDefault();
+      let el = this.articleRef;
+      while(el && el.className !== "cell-list") {
+        el = el.children[0];
+      }
+      while(el && el.className !== "cell-wrapper") {
+        el = el.lastChild;
+      }
+      const last = el?.children[1];
+      last && last.focus();
+    }
+  }
+
   render() {
     return (
       <div
+        tabIndex={-1}
         className="article-plane"
-        ref={el => { this.myrefs["plane"] = el }}
+        ref={el => { this.articleRef = el }}
         onClick={this.onBackgroundClick}
+        onKeyDown={this.onKeyDown}
       >
         <CellTree
           view={this.props.view}
           renderCell={this.renderCell}
+        />
+        <ReactResizeDetector
+          handleWidth
+          handleHeight
+          onResize={() => {
+            this.setState({resized: !this.state.resized})
+          }}
         />
       </div>
     )
@@ -87,7 +124,6 @@ export default connect(
     viewTree: state.view.viewTree,
   }),
   {
-    insertNewChildCell,
     fetchChildCells,
   }
 )(Article)

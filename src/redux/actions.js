@@ -1,6 +1,6 @@
 import * as types from "./actionTypes"
 
-export function insertNewChildCell({
+export function insertNewChildCellExpand({
   view,
   viewPath,
   parentId,
@@ -10,7 +10,20 @@ export function insertNewChildCell({
   childCells = {},
 }) {
   return ({
-    type: types.INSERT_NEW_CHILD_CELL,
+    type: types.INSERT_NEW_CHILD_CELL_EXPAND,
+    payload: arguments[0]
+  })
+}
+
+export function postNewChildCellExpand({
+  view,
+  viewPath,
+  parentId,
+  parentVid,
+  insertIndex
+}) {
+  return ({
+    type: types.POST_NEW_CHILD_CELL_EXPAND,
     payload: arguments[0]
   })
 }
@@ -206,6 +219,17 @@ export function patchContentToggleEdit({
 }) {
   return ({
     type: types.PATCH_CONTENT_TOGGLE_EDIT,
+    payload: arguments[0]
+  })
+}
+
+export function deleteChild({
+  parentId,
+  childIndex,
+  focusNextCell
+}) {
+  return ({
+    type: types.DELETE_CHILD,
     payload: arguments[0]
   })
 }

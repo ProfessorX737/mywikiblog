@@ -13,9 +13,9 @@ function MarkdownCell(props) {
     ...props.cellData
   }
   const onEditorKeyDown = evt => {
-    if(!(evt.shiftKey && evt.key === "Enter")) {
+    if (!(evt.shiftKey && evt.key === "Enter")) {
       evt.stopPropagation();
-    } 
+    }
   }
   const onContentChange = content => {
     props.setCellContent({
@@ -26,17 +26,17 @@ function MarkdownCell(props) {
   return (
     <React.Fragment>
       {cellData.isEditing ? (
-      <MarkdownEditor
-        initialCode={cellData.content}
-        renderStyle={{ padding: '0 0.5em 0 0.5em' }}
-        onContentChange={content => {onContentChange(content)}}
-        wrapperProps={{
-          onKeyDown: evt => {onEditorKeyDown(evt)},
-        }}
-      />
+        <MarkdownEditor
+          initialCode={cellData.content}
+          renderStyle={{ padding: '0 0.5em 0 0.5em' }}
+          onContentChange={content => { onContentChange(content) }}
+          wrapperProps={{
+            onKeyDown: evt => { onEditorKeyDown(evt) },
+          }}
+        />
       ) : (
-        <RenderMarkdown2 source={cellData.content} />
-      )}
+          <RenderMarkdown2 source={cellData.content} />
+        )}
     </React.Fragment>
   )
 }

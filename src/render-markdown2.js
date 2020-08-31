@@ -11,10 +11,6 @@ class RenderMarkdown2 extends React.PureComponent {
     style: PropTypes.object
   };
 
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const newProps = {
       ...this.props,

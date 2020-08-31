@@ -7,7 +7,7 @@ import clsx from 'clsx'
 import {
   setCellChildren
 } from "./redux/actions";
-import update from 'immutability-helper';
+import * as cellUtils from './cell-utils'
 
 ReactSortable.prototype.onChoose = function (evt) { };
 ReactSortable.prototype.onUnchoose = function (evt) { };
@@ -36,6 +36,13 @@ const dragGroup = cells => ({
 
 export default function CellTree(props) {
   let cellIndex = 0;
+  let cellIdCount = {};
+  const countCellId = cellId => {
+    let count = cellIdCount[cellId];
+    count = count ? count + 1 : 1;
+    cellIdCount[cellId] = count;
+    return count;
+  }
   return (
     <CellTreeRecurse
       isRoot={true}
@@ -44,6 +51,7 @@ export default function CellTree(props) {
       view={props.view}
       cellPath=""
       countCell={() => cellIndex++}
+      countCellId={countCellId}
     />
   )
 }
@@ -59,13 +67,15 @@ function CellTreeRecurse_(props) {
     cellId,
     renderCell,
     view,
-    cellPath,
     cells,
     setCellChildren,
     countCell,
+    countCellId
   } = props;
   const children = cells[cellId]?.children || [];
-  const cellVid = `${cellId}_${cellPath}`;
+  const cellVid = cellUtils.makeCellVid({
+    cellId, count: countCellId(cellId)
+  });
   const isExpanded = view.tabsView[view.currTabId]?.[cellVid]?.isExpanded;
   return (
     <React.Fragment>
@@ -87,7 +97,7 @@ function CellTreeRecurse_(props) {
             margin: `0 auto 0 ${isRoot ? 'auto' : '1em'}`
           }}
           viewId={view.id}
-          cellId={cellId}
+          id={cellVid}
           handle=".cell-handle"
         >
           {children.map((child, index) => {
@@ -97,8 +107,8 @@ function CellTreeRecurse_(props) {
                 cellId={child.id}
                 renderCell={props.renderCell}
                 view={props.view}
-                cellPath={`${cellPath}c${index}`}
                 countCell={countCell}
+                countCellId={countCellId}
               />
             )
           })}
@@ -113,8 +123,8 @@ CellTreeRecurse_.propTypes = {
   cellId: PropTypes.string.isRequired,
   renderCell: PropTypes.func.isRequired,
   view: PropTypes.object.isRequired,
-  cellPath: PropTypes.string.isRequired,
-  countCell: PropTypes.func
+  countCell: PropTypes.func,
+  countCellId: PropTypes.func,
 }
 
 CellTreeRecurse_.defaultProps = {

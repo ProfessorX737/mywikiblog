@@ -46,7 +46,7 @@ class MarkdownEditor extends React.Component {
       lineNumbers: this.props.lineNumbers,
       mode: "markdown",
       extraKeys: { "Ctrl-Space": "autocomplete" },
-      lineWrapping: this.props.lineWrapping
+      lineWrapping: this.props.lineWrapping,
     };
   }
 
@@ -80,7 +80,7 @@ class MarkdownEditor extends React.Component {
           onBeforeChange={this.updateCode}
           onChange={(editor, data, value) => this.props.onContentChange(value)}
           options={this.options}
-          onFocus={this.props.onFocus}
+          onFocus={(editor, evt) => {evt.preventDefault()}}
         />
         {this.props.preview && (
           <div style={{ backgroundColor: "transparent" }}>
