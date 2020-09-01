@@ -34,26 +34,50 @@ const dragGroup = cells => ({
   }
 })
 
-export default function CellTree(props) {
-  let cellIndex = 0;
-  let cellIdCount = {};
-  const countCellId = cellId => {
-    let count = cellIdCount[cellId];
+class CellTree extends React.Component {
+  constructor(props) {
+    super(props)
+    this.cellIndex = 0;
+    this.cellIdCount = {};
+  }
+
+  componentDidMount() {
+    this.setCellChildren = this.props.setCellChildren;
+  }
+
+  componentDidUpdate() {
+    this.cellIndex = 0;
+    this.cellIdCount = {};
+  }
+
+  countCellId = cellId => {
+    let count = this.cellIdCount[cellId];
     count = count ? count + 1 : 1;
-    cellIdCount[cellId] = count;
+    this.cellIdCount[cellId] = count;
     return count;
   }
-  return (
-    <CellTreeRecurse
-      isRoot={true}
-      cellId={props.view.currTabId}
-      renderCell={props.renderCell}
-      view={props.view}
-      cellPath=""
-      countCell={() => cellIndex++}
-      countCellId={countCellId}
-    />
-  )
+
+  handleSort = evt => {
+    if (evt.srcElement === evt.from) {
+      console.log(evt)
+    }
+  }
+
+  render() {
+    return (
+      <CellTreeRecurse
+        isRoot={true}
+        cellId={this.props.view.currTabId}
+        renderCell={this.props.renderCell}
+        view={this.props.view}
+        cells={this.props.cells}
+        setCellChildren={this.props.setCellChildren}
+        countCell={() => this.cellIndex++}
+        countCellId={this.countCellId}
+        handleSort={this.handleSort}
+      />
+    )
+  }
 }
 
 CellTree.propTypes = {
@@ -61,7 +85,7 @@ CellTree.propTypes = {
   renderCell: PropTypes.func.isRequired,
 }
 
-function CellTreeRecurse_(props) {
+function CellTreeRecurse(props) {
   const {
     isRoot,
     cellId,
@@ -70,7 +94,8 @@ function CellTreeRecurse_(props) {
     cells,
     setCellChildren,
     countCell,
-    countCellId
+    countCellId,
+    handleSort
   } = props;
   const children = cells[cellId]?.children || [];
   const cellVid = cellUtils.makeCellVid({
@@ -100,6 +125,7 @@ function CellTreeRecurse_(props) {
           cellId={cellId}
           id={cellVid}
           handle=".cell-handle"
+          onSort={handleSort}
         >
           {children.map((child, index) => {
             return (
@@ -108,8 +134,11 @@ function CellTreeRecurse_(props) {
                 cellId={child.id}
                 renderCell={props.renderCell}
                 view={props.view}
+                cells={cells}
+                setCellChildren={setCellChildren}
                 countCell={countCell}
                 countCellId={countCellId}
+                handleSort={handleSort}
               />
             )
           })}
@@ -119,21 +148,24 @@ function CellTreeRecurse_(props) {
   )
 }
 
-CellTreeRecurse_.propTypes = {
+CellTreeRecurse.propTypes = {
   isRoot: PropTypes.bool,
   cellId: PropTypes.string.isRequired,
   renderCell: PropTypes.func.isRequired,
   view: PropTypes.object.isRequired,
+  cells: PropTypes.object.isRequired,
+  setCellChildren: PropTypes.func,
   countCell: PropTypes.func,
   countCellId: PropTypes.func,
+  handleSort: PropTypes.func,
 }
 
-CellTreeRecurse_.defaultProps = {
+CellTreeRecurse.defaultProps = {
   isRoot: false,
   cellIndex: -1
 }
 
-const CellTreeRecurse = connect(
+export default connect(
   state => ({ cells: state.view.cells }),
   { setCellChildren }
-)(CellTreeRecurse_);
+)(CellTree);

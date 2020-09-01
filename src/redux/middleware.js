@@ -101,35 +101,6 @@ const fetchChildCellsToggleExpand = store => next => async action => {
   }
 }
 
-const fetchUserInitLogic = store => next => async action => {
-  if (action.type === types.FETCH_USER_INIT) {
-    try {
-      const user = await axios.get(`${routeStem}/user`, {
-        params: { email: action.payload.email }
-      }).then(res => res.data);
-      const store = {
-        cells: {
-          [user._id]: { ...user, id: user._id }
-        },
-        viewTree: {
-          id: "1",
-          currTabId: user._id,
-          tabs: [{ id: user._id }],
-          tabsView: {
-            [user._id]: {}
-          },
-          children: []
-        }
-      }
-      next(actions.setStore({ store }));
-    } catch (e) {
-      console.log(e);
-    }
-  } else {
-    next(action);
-  }
-}
-
 const patchContentToggleEditLogic = store => next => async action => {
   if (action.type === types.PATCH_CONTENT_TOGGLE_EDIT) {
     const {
@@ -240,46 +211,80 @@ const deleteChildLogic = store => next => async action => {
 
 const localStorageInitLogic = store => next => async action => {
   if (action.type === types.LOCAL_STORAGE_INIT) {
-    const lsKey = constants.LOCAL_STORAGE_KEY;
-    const viewTree = JSON.parse(localStorage.getItem(lsKey));
-    if (viewTree) {
-      // local storage exists so recreate the view
-      // get required cell ids used in cached view
-      const idToExpandMap = getViewIds(viewTree);
-      let ids = Object.keys(idToExpandMap);
-      // get updated versions of these cells
-      let cellList = await axios.get(`${routeStem}/cells`, {
-        params: { ids }
-      }).then(res => res.data);
-      let cells = mapCellList(cellList);
-      // some child cells may be implicitly there if never expanded
-      // so fetch these too
-      ids = [];
-      for (const id in idToExpandMap) {
-        // get all child cell ids of this expanded cell
-        if (idToExpandMap[id]) {
-          ids.push(...reduceCellsToIds(cells[id].children));
+    try {
+      const lsKey = constants.LOCAL_STORAGE_KEY;
+      const viewTree = JSON.parse(localStorage.getItem(lsKey));
+      if (viewTree) {
+        // local storage exists so recreate the view
+        // get required cell ids used in cached view
+        const idToExpandMap = getViewIds(viewTree);
+        let ids = Object.keys(idToExpandMap);
+        // get updated versions of these cells
+        let cellList = await axios.get(`${routeStem}/cells`, {
+          params: { ids }
+        }).then(res => res.data);
+        let cells = mapCellList(cellList);
+        // some child cells may be implicitly there if never expanded
+        // so fetch these too
+        ids = [];
+        for (const id in idToExpandMap) {
+          // get all child cell ids of this expanded cell
+          if (idToExpandMap[id]) {
+            ids.push(...reduceCellsToIds(cells[id].children));
+          }
         }
-      }
-      // fetch these potentially missing cells
-      cellList = await axios.get(`${routeStem}/cells`, {
-        params: { ids }
-      }).then(res => res.data);
-      // add them to our cell map
-      for (let i = 0; i < cellList.length; i++) {
-        cells[cellList[i]._id] = cellList[i];
-      }
-      const restoredView = recreateView(viewTree, cells);
-      next(actions.setStore({
-        store: {
-          viewTree: restoredView,
-          cells
+        // fetch these potentially missing cells
+        cellList = await axios.get(`${routeStem}/cells`, {
+          params: { ids }
+        }).then(res => res.data);
+        // add them to our cell map
+        for (let i = 0; i < cellList.length; i++) {
+          cells[cellList[i]._id] = cellList[i];
         }
-      }))
-    } else {
-      const email = store.getState().user.email;
-      next(actions.fetchUserInit({ email }));
+        const restoredView = recreateView(viewTree, cells);
+        next(actions.setStore({
+          store: {
+            viewTree: restoredView,
+            cells
+          }
+        }))
+      } else {
+        const email = store.getState().user.email;
+        const user = await axios.get(`${routeStem}/user`, {
+          params: { email }
+        }).then(res => res.data);
+        const initStore = {
+          cells: {
+            [user._id]: { ...user, id: user._id }
+          },
+          viewTree: {
+            id: "1",
+            currTabId: user._id,
+            tabs: [{ id: user._id }],
+            tabsView: {
+              [user._id]: {}
+            },
+            children: []
+          }
+        }
+        next(actions.setStore({ store: initStore }));
+      }
+    } catch (e) {
+      console.log(e);
     }
+  } else {
+    next(action);
+  }
+}
+
+const dragAndDropCellLogic = store => next => async action => {
+  if (action.type === types.DRAG_AND_DROP_CELL) {
+    const {
+      oldParentId,
+      newParentId,
+      childId
+    } = action.payload;
+    
   } else {
     next(action);
   }
@@ -288,13 +293,13 @@ const localStorageInitLogic = store => next => async action => {
 export default [
   fetchCellsLogic,
   fetchChildCellsLogic,
-  fetchUserInitLogic,
   setCellChildrenLogic,
   fetchChildCellsToggleExpand,
   patchContentToggleEditLogic,
   postNewChildCellExpandLogic,
   deleteChildLogic,
-  localStorageInitLogic
+  localStorageInitLogic,
+  dragAndDropCellLogic
 ];
 
 const mapCellList = cellList => {

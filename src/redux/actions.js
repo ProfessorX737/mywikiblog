@@ -177,15 +177,6 @@ export function fetchChildCells({
   })
 }
 
-export function fetchUserInit({
-  email
-}) {
-  return ({
-    type: types.FETCH_USER_INIT,
-    payload: arguments[0]
-  })
-}
-
 export function fetchChildCellsToggleExpand({
   view,
   viewPath,
