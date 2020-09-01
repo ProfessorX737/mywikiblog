@@ -2,6 +2,8 @@ import * as types from "./actionTypes";
 import * as actions from "./actions";
 import axios from 'axios';
 import assert from 'assert';
+import * as constants from '../constants';
+import * as cellUtils from '../cell-utils';
 
 const routeStem = "http://localhost:5000/api";
 
@@ -236,6 +238,53 @@ const deleteChildLogic = store => next => async action => {
   }
 }
 
+const localStorageInitLogic = store => next => async action => {
+  if (action.type === types.LOCAL_STORAGE_INIT) {
+    const lsKey = constants.LOCAL_STORAGE_KEY;
+    const viewTree = JSON.parse(localStorage.getItem(lsKey));
+    if (viewTree) {
+      // local storage exists so recreate the view
+      // get required cell ids used in cached view
+      const idToExpandMap = getViewIds(viewTree);
+      let ids = Object.keys(idToExpandMap);
+      // get updated versions of these cells
+      let cellList = await axios.get(`${routeStem}/cells`, {
+        params: { ids }
+      }).then(res => res.data);
+      let cells = mapCellList(cellList);
+      // some child cells may be implicitly there if never expanded
+      // so fetch these too
+      ids = [];
+      for (const id in idToExpandMap) {
+        // get all child cell ids of this expanded cell
+        if (idToExpandMap[id]) {
+          ids.push(...reduceCellsToIds(cells[id].children));
+        }
+      }
+      // fetch these potentially missing cells
+      cellList = await axios.get(`${routeStem}/cells`, {
+        params: { ids }
+      }).then(res => res.data);
+      // add them to our cell map
+      for (let i = 0; i < cellList.length; i++) {
+        cells[cellList[i]._id] = cellList[i];
+      }
+      const restoredView = recreateView(viewTree, cells);
+      next(actions.setStore({
+        store: {
+          viewTree: restoredView,
+          cells
+        }
+      }))
+    } else {
+      const email = store.getState().user.email;
+      next(actions.fetchUserInit({ email }));
+    }
+  } else {
+    next(action);
+  }
+}
+
 export default [
   fetchCellsLogic,
   fetchChildCellsLogic,
@@ -244,7 +293,8 @@ export default [
   fetchChildCellsToggleExpand,
   patchContentToggleEditLogic,
   postNewChildCellExpandLogic,
-  deleteChildLogic
+  deleteChildLogic,
+  localStorageInitLogic
 ];
 
 const mapCellList = cellList => {
@@ -260,4 +310,66 @@ const reduceCellsToIds = cells => {
     ids.push(cell.id)
     return ids;
   }, []);
+}
+
+// get a map of all (ids => isExpanded) in a view
+const getViewIds = view => {
+  let ids = {};
+  for (let i = 0; i < view.tabs.length; i++) {
+    ids[view.tabs[i].id] = true;
+  }
+  if (view.tabsView) {
+    for (const id in view.tabsView) {
+      ids[id] = true;
+      for (const vid in view.tabsView[id]) {
+        const id2 = vid.replace(/_[0-9]+$/, '');
+        // if we do not have id or it is expanded then skip
+        if (ids[id2]) continue;
+        ids[id2] = view.tabsView[id][vid].isExpanded;
+      }
+    }
+  }
+  for (let i = 0; i < view.children.length; i++) {
+    const viewIds = getViewIds(view.children[i]);
+    for (const id in viewIds) {
+      if (ids[id]) continue;
+      ids[id] = viewIds[id];
+    }
+  }
+  return ids;
+}
+
+// restore and clean the old saved view
+const recreateView = (view, cells) => {
+  let tabs = [];
+  // only add available tabs
+  for (let i = 0; i < view.tabs.length; i++) {
+    if (cells[view.tabs[i].id]) {
+      tabs.push(view.tabs[i]);
+    }
+  }
+  // only add available cells
+  let tabsView = {};
+  for (const tabId in view.tabsView) {
+    if (cells[tabId]) {
+      tabsView[tabId] = {};
+      for (const vid in view.tabsView[tabId]) {
+        const id = cellUtils.cellVidToId(vid);
+        if (cells[id]) {
+          tabsView[tabId][vid] = view.tabsView[tabId][vid];
+        }
+      }
+    }
+  }
+  // recursively do the same for all child views
+  let children = [];
+  for (let i = 0; i < view.children.length; i++) {
+    children.push(recreateView(view.children[i], cells));
+  }
+  return {
+    ...view,
+    tabs,
+    tabsView,
+    children
+  }
 }

@@ -34,11 +34,6 @@ class Article extends React.Component {
     }
   }
 
-  getArticleWidthPx = () => {
-    return this.articleRef ?
-      `${this.articleRef.clientWidth}px` : '0px';
-  }
-
   renderCell = ({ cellId, cellVid, cellIndex }) => {
     const cellData = {
       cellId,
@@ -46,7 +41,6 @@ class Article extends React.Component {
       children: [],
       ...this.props.cells[cellId],
       ...this.props.view.tabsView[this.props.view.currTabId]?.[cellVid],
-      cellWidth: this.getArticleWidthPx(),
       cellIndex
     }
     return (
@@ -66,7 +60,7 @@ class Article extends React.Component {
   }
 
   onKeyDown = evt => {
-    if (evt.key === 'j') {
+    if (evt.key.match(/^[jJ]$/)) {
       evt.preventDefault();
       let el = this.articleRef;
       while(el && el.className !== "cell-wrapper") {
@@ -74,7 +68,7 @@ class Article extends React.Component {
       }
       const first = el?.children[1];
       first && first.focus();
-    } else if (evt.key === 'k') {
+    } else if (evt.key.match(/^[kK]$/)) {
       evt.preventDefault();
       let el = this.articleRef;
       while(el && el.className !== "cell-list") {

@@ -97,6 +97,7 @@ function CellTreeRecurse_(props) {
             margin: `0 auto 0 ${isRoot ? 'auto' : '1em'}`
           }}
           viewId={view.id}
+          cellId={cellId}
           id={cellVid}
           handle=".cell-handle"
         >

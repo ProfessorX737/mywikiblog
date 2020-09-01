@@ -50,7 +50,7 @@ class CellWrapper extends React.Component {
       <div
         ref={el => { this.wrapperRef = el }}
         className="cell-wrapper"
-        style={{ width: cellData.cellWidth }}
+        style={{ width: this.getArticlePxWidth() }}
         onClick={() => { this.contentRef.focus({ preventScroll: true }) }}
       >
         <CellHandle
@@ -83,9 +83,9 @@ class CellWrapper extends React.Component {
       cellVid,
       cellIndex
     } = cellData;
-    if (evt.key === 'j') {
+    if (evt.key.match(/^[jJ]$/)) {
       evt.stopPropagation();
-      if(this.getIsCellBottomHidden()) {
+      if(this.getIsCellBottomHidden() && evt.key === 'j') {
         this.props.articleRef.scroll({
           top: this.props.articleRef.scrollTop + 50,
           left: this.props.articleRef.scrollLeft,
@@ -94,9 +94,9 @@ class CellWrapper extends React.Component {
       } else {
         this.focusNextCell(true);
       }
-    } else if (evt.key === 'k') {
+    } else if (evt.key.match(/^[kK]$/)) {
       evt.stopPropagation();
-      if(this.getIsCellTopHidden()) {
+      if(this.getIsCellTopHidden() && evt.key === 'k') {
         this.props.articleRef.scroll({
           top: this.props.articleRef.scrollTop - 50,
           left: this.props.articleRef.scrollLeft,
@@ -160,6 +160,11 @@ class CellWrapper extends React.Component {
     }
   }
 
+  getArticlePxWidth = () => {
+    return this.props.articleRef ?
+      `${this.props.articleRef.clientWidth}px` : '0px';
+  }
+
   getIsCellTopHidden = () => {
     return this.wrapperRef.offsetTop < this.props.articleRef.scrollTop;
   }
@@ -167,7 +172,7 @@ class CellWrapper extends React.Component {
   getIsCellBottomHidden = () => {
     const wrapperBottom = this.wrapperRef.offsetTop + this.wrapperRef.offsetHeight;
     const windowBottom = this.props.articleRef ?
-      this.props.articleRef.scrollTop + this.props.articleRef.clientHeight : 0;
+      this.props.articleRef.scrollTop + this.props.articleRef.offsetHeight : 0;
     return wrapperBottom > windowBottom;
   }
 
@@ -230,11 +235,11 @@ CellWrapper.propTypes = {
   view: PropTypes.object.isRequired,
   viewPath: PropTypes.array.isRequired,
   cellData: PropTypes.object.isRequired,
+  articleRef: PropTypes.object
 }
 
 export default connect(
   state => ({
-    focusData: state.focus.data,
     cells: state.view.cells
   }),
   {

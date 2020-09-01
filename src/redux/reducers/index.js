@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
 import view from './view';
-import focus from './focus';
+import user from './user';
 
 export default combineReducers({
   view,
-  focus
+  user
 })

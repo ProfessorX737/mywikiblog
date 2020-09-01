@@ -234,6 +234,12 @@ export function deleteChild({
   })
 }
 
+export function localStorageInit() {
+  return ({
+    type: types.LOCAL_STORAGE_INIT
+  })
+}
+
 // focus.js
 
 /**
