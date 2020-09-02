@@ -231,18 +231,27 @@ export function localStorageInit() {
   })
 }
 
-// focus.js
+export function dragAndDropCellEffect({
+  oldParentId,
+  newParentId,
+  childOldIndex,
+  childNewIndex
+}) {
+  return ({
+    type: types.DRAG_AND_DROP_CELL_EFFECT,
+    payload: arguments[0]
+  })
+}
 
-/**
- * @param data
- * @param {string} data.viewId
- * @param {string} data.tabId
- * @param {string} data.cellVid
- * @param {number} data.cellIndex
- */
-export function setFocusData(data) {
-  return {
-    type: types.SET_FOCUS_DATA,
-    payload: data
-  }
+export function moveChildCell({
+  toParentId,
+  fromParentId,
+  fromIndex,
+  toIndex,
+  childId,
+}) {
+  return ({
+    type: types.MOVE_CHILD_CELL,
+    payload: arguments[0]
+  })
 }

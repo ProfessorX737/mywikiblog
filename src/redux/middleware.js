@@ -230,7 +230,9 @@ const localStorageInitLogic = store => next => async action => {
         for (const id in idToExpandMap) {
           // get all child cell ids of this expanded cell
           if (idToExpandMap[id]) {
-            ids.push(...reduceCellsToIds(cells[id].children));
+            if(cells[id]) {
+              ids.push(...reduceCellsToIds(cells[id].children));
+            }
           }
         }
         // fetch these potentially missing cells
@@ -277,14 +279,43 @@ const localStorageInitLogic = store => next => async action => {
   }
 }
 
-const dragAndDropCellLogic = store => next => async action => {
-  if (action.type === types.DRAG_AND_DROP_CELL) {
+const dragAndDropCellEffectLogic = store => next => async action => {
+  if (action.type === types.DRAG_AND_DROP_CELL_EFFECT) {
     const {
       oldParentId,
       newParentId,
-      childId
+      childOldIndex,
+      childNewIndex
     } = action.payload;
-    
+    try {
+      const cells = store.getState().view.cells;
+      const childId = cells[newParentId].id;
+      if(oldParentId === newParentId) {
+        // move the cell
+        await axios.patch(`${routeStem}/relink-cell`, {
+          oldParentId,
+          newParentId,
+          childId,
+          index: childNewIndex
+        })
+      } else {
+        // link the cell
+        await axios.patch(`${routeStem}/link-cell`, {
+          parentId: newParentId,
+          childId,
+          index: childNewIndex
+        })
+      }
+    } catch (e) {
+      console.log(e);
+      // undo the drag and drop operation
+      next(actions.moveChildCell({
+        toParentId: oldParentId,
+        fromParentId: newParentId,
+        fromIndex: childNewIndex,
+        toIndex: childOldIndex
+      }));
+    }
   } else {
     next(action);
   }
@@ -299,7 +330,7 @@ export default [
   postNewChildCellExpandLogic,
   deleteChildLogic,
   localStorageInitLogic,
-  dragAndDropCellLogic
+  dragAndDropCellEffectLogic
 ];
 
 const mapCellList = cellList => {

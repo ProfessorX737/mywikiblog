@@ -5,28 +5,33 @@ import { ReactSortable } from "react-sortablejs";
 import "./cell-tree.css"
 import clsx from 'clsx'
 import {
-  setCellChildren
+  setCellChildren,
+  dragAndDropCellEffect
 } from "./redux/actions";
 import * as cellUtils from './cell-utils'
 
-ReactSortable.prototype.onChoose = function (evt) { };
-ReactSortable.prototype.onUnchoose = function (evt) { };
+// ReactSortable.prototype.onChoose = function (evt) { };
+// ReactSortable.prototype.onUnchoose = function (evt) { };
 
 const dragGroup = cells => ({
   name: "cells",
   put: (to, from, el) => {
     const toChilds = cells[to.options.cellId].children;
     // If the target article already contains a cell with the same id don't add it
-    const id = el.getAttribute("id");
+    const cellId = el.getAttribute("cellid");
     for (let i = 0; i < toChilds.length; i++) {
-      if (toChilds[i].id === id) return false;
+      if (toChilds[i].id === cellId) return false;
     }
     return true;
   },
   // pull: "clone"
   pull: (to, from, el) => {
     // if dragging between cells between different views then clone
-    if (to.options.viewId !== from.options.viewId) {
+    // if (to.options.viewId !== from.options.viewId) {
+    //   return "clone";
+    // }
+    // if dragging between two different lists then cline
+    if (to.options.cellId !== from.options.cellId) {
       return "clone";
     }
     // if dragging between cells within the same view then move the cells
@@ -34,15 +39,48 @@ const dragGroup = cells => ({
   }
 })
 
+// function CellTree(props) {
+
+//   let cellIndex = 0;
+//   let cellIdCount = {};
+
+//   const countCellId = cellId => {
+//     let count = cellIdCount[cellId];
+//     count = count ? count + 1 : 1;
+//     cellIdCount[cellId] = count;
+//     return count;
+//   }
+
+//   const handleSort = evt => {
+//     if (evt.srcElement === evt.from) {
+//       // this.props.dragAndDropCellEffect({
+//       //   oldParentId:
+//       // })
+//     }
+//   }
+
+//   return (
+//     <CellTreeRecurse
+//       isRoot={true}
+//       cellId={props.view.currTabId}
+//       renderCell={props.renderCell}
+//       view={props.view}
+//       cells={props.cells}
+//       setCellChildren={props.setCellChildren}
+//       countCell={() => cellIndex++}
+//       countCellId={countCellId}
+//       handleSort={handleSort}
+//       articlePxWidth={props.articlePxWidth}
+//     />
+//   )
+
+// }
+
 class CellTree extends React.Component {
   constructor(props) {
     super(props)
     this.cellIndex = 0;
     this.cellIdCount = {};
-  }
-
-  componentDidMount() {
-    this.setCellChildren = this.props.setCellChildren;
   }
 
   componentDidUpdate() {
@@ -57,9 +95,16 @@ class CellTree extends React.Component {
     return count;
   }
 
+  getCellIdCount = cellId => {
+    const count = this.cellIdCount[cellId];
+    return count ? count + 1 : 1;
+  }
+
   handleSort = evt => {
     if (evt.srcElement === evt.from) {
-      console.log(evt)
+      // this.props.dragAndDropCellEffect({
+      //   oldParentId:
+      // })
     }
   }
 
@@ -75,6 +120,7 @@ class CellTree extends React.Component {
         countCell={() => this.cellIndex++}
         countCellId={this.countCellId}
         handleSort={this.handleSort}
+        articlePxWidth={this.props.articlePxWidth} 
       />
     )
   }
@@ -83,6 +129,7 @@ class CellTree extends React.Component {
 CellTree.propTypes = {
   view: PropTypes.object.isRequired,
   renderCell: PropTypes.func.isRequired,
+  articlePxWidth: PropTypes.string
 }
 
 function CellTreeRecurse(props) {
@@ -95,20 +142,22 @@ function CellTreeRecurse(props) {
     setCellChildren,
     countCell,
     countCellId,
-    handleSort
+    handleSort,
+    articlePxWidth
   } = props;
   const children = cells[cellId]?.children || [];
   const cellVid = cellUtils.makeCellVid({
     cellId, count: countCellId(cellId)
   });
   const isExpanded = view.tabsView[view.currTabId]?.[cellVid]?.isExpanded;
+  const isEmpty = children.length === 0;
   return (
-    <React.Fragment>
+    <div className="cell-tree" cellid={cellId} cellvid={cellVid}>
       {!isRoot && renderCell({ cellId, cellVid, cellIndex: countCell() })}
       {(isExpanded || isRoot) && (
         <ReactSortable
           className={
-            clsx('cell-list', children.length === 0 && 'empty-article')
+            clsx('cell-list', isEmpty && 'empty-article', isRoot && 'root-list')
           }
           group={dragGroup(cells)}
           list={children}
@@ -119,7 +168,7 @@ function CellTreeRecurse(props) {
             })
           }}
           style={{
-            margin: `0 auto 0 ${isRoot ? 'auto' : '1em'}`
+            width: `${isEmpty ? articlePxWidth : 'fit-content'}`,
           }}
           viewId={view.id}
           cellId={cellId}
@@ -139,12 +188,13 @@ function CellTreeRecurse(props) {
                 countCell={countCell}
                 countCellId={countCellId}
                 handleSort={handleSort}
+                articlePxWidth={articlePxWidth}
               />
             )
           })}
         </ReactSortable>
       )}
-    </React.Fragment>
+      </div>
   )
 }
 
@@ -167,5 +217,8 @@ CellTreeRecurse.defaultProps = {
 
 export default connect(
   state => ({ cells: state.view.cells }),
-  { setCellChildren }
+  {
+    setCellChildren,
+    dragAndDropCellEffect
+  }
 )(CellTree);

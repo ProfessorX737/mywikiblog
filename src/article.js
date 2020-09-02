@@ -59,6 +59,11 @@ class Article extends React.Component {
     )
   }
 
+  getArticlePxWidth = () => {
+    return this.articleRef ?
+      `${this.articleRef.clientWidth}px` : '0px';
+  }
+
   onKeyDown = evt => {
     if (evt.key.match(/^[jJ]$/)) {
       evt.preventDefault();
@@ -94,6 +99,7 @@ class Article extends React.Component {
         <CellTree
           view={this.props.view}
           renderCell={this.renderCell}
+          articlePxWidth={this.getArticlePxWidth()}
         />
         <ReactResizeDetector
           handleWidth

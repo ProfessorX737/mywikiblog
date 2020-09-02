@@ -41,3 +41,9 @@
   border-radius: 3px;
   box-shadow: 0 0 0 1px white;
 }
+
+.empty-content {
+  min-height: 1.5em;
+  width: 100%;
+  border: 2px dashed white;
+}

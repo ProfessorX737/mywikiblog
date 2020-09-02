@@ -3,6 +3,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import loadScript from "load-script";
+
 /**
  * Context for loading MathJax
  */
@@ -10,7 +11,7 @@ class Context extends React.Component {
   constructor(props) {
     super(props);
     this.state = { loaded: false };
-    this.onLoad = this.onLoad.bind(this);
+    this.willUnmount = false;
   }
 
   getChildContext() {
@@ -27,15 +28,21 @@ class Context extends React.Component {
       console.log("script not defined");
       return this.onLoad();
     }
+
     loadScript(script, this.onLoad);
   }
 
-  onLoad() {
+  componentWillUnmount() {
+    this.willUnmount = true;
+  }
+
+  onLoad = () => {
     const options = this.props.options;
 
     MathJax.Hub.Config(options);
 
-    MathJax.Hub.Register.StartupHook("End", () => {
+    this.myHook = MathJax.Hub.Register.StartupHook("End", () => {
+      if (this.willUnmount) return;
       MathJax.Hub.processSectionDelay = this.props.delay;
 
       if (this.props.didFinishTypeset) {
@@ -49,7 +56,6 @@ class Context extends React.Component {
       if (this.props.hubFn) {
         this.props.hubFn(MathJax.Hub);
       }
-
       this.setState({
         loaded: true
       });
@@ -67,9 +73,7 @@ class Context extends React.Component {
       return this.props.loading;
     }
 
-    const children = this.props.children;
-
-    return React.Children.only(children);
+    return React.Children.only(this.props.children);
   }
 }
 

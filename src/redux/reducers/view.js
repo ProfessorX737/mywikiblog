@@ -351,11 +351,42 @@ export default function (state = initialState, action) {
         parentId,
         childIndex
       } = action.payload;
+      const childId = state.cells[parentId].children[childIndex].id;
+      // create copy of the view and delete all tabs with id = childId
+      let viewTree = update(state.viewTree, {});
+      mutateDeleteTabId(viewTree, childId);
       const updateOb = {
         cells: {
           [parentId]: {
             children: {
               $splice: [[childIndex, 1]]
+            }
+          }
+        },
+        viewTree: {
+          $set: viewTree
+        }
+      }
+      return update(state, updateOb);
+    }
+    case types.MOVE_CHILD_CELL: {
+      const {
+        toParentId,
+        fromParentId,
+        fromIndex,
+        toIndex,
+        childId,
+      } = action.payload;
+      const updateOb = {
+        cells: {
+          [fromParentId]: {
+            children: {
+              $splice: [[fromIndex, 1]]
+            }
+          },
+          [toParentId]: {
+            children: {
+              $splice: [[toIndex, 0, { id: childId }]]
             }
           }
         }
@@ -365,6 +396,18 @@ export default function (state = initialState, action) {
     default: {
       return state;
     }
+  }
+}
+
+const mutateDeleteTabId = (view, id) => {
+  for(let i = 0; i < view.tabs.length; i++) {
+    if(view.tabs[i].id === id) {
+      view.tabs.splice(i, 1);
+      break;
+    }
+  }
+  for(let i = 0; i < view.children.length; i++) {
+    mutateDeleteTabId(view.children[i], id);
   }
 }
 

@@ -51,7 +51,7 @@ class CellWrapper extends React.Component {
         ref={el => { this.wrapperRef = el }}
         className="cell-wrapper"
         style={{ width: this.getArticlePxWidth() }}
-        onClick={() => { this.contentRef.focus({ preventScroll: true }) }}
+        onClick={() => { this.wrapperRef.focus({ preventScroll: true }) }}
       >
         <CellHandle
           view={view}
@@ -60,11 +60,12 @@ class CellWrapper extends React.Component {
         />
         <div
           tabIndex={-1}
-          onFocus={this.onFocusContent}
           onBlur={() => { this.setState({ isFocused: false }) }}
           ref={this.onContentRef}
           className={this.getContentClassname()}
           onKeyDown={this.onKeyDown}
+          id={this.getRefKey(cellData.cellVid)}
+          onFocus={this.onFocusContent}
         >
           {this.props.children}
         </div>
@@ -134,9 +135,7 @@ class CellWrapper extends React.Component {
       newCellIndex = evt.key === "a" ?
         cellIndex + 1 : cellIndex + childCount + 1;
     } else if (evt.key === "o" || evt.key === "O") {
-      const childIndex = this.getChildIndex(); 
-      const parentVid = this.wrapperRef.parentNode.getAttribute('id');
-      const parentId = cellUtils.cellVidToId(parentVid);
+      const { childIndex, parentId, parentVid } = this.getParentCellData();
       this.props.postNewChildCellExpand({
         view,
         viewPath,
@@ -147,9 +146,7 @@ class CellWrapper extends React.Component {
       newCellIndex = evt.key === "o" ?
         cellIndex + 1 : cellIndex;
     } else if (evt.key === "D") {
-      const childIndex = this.getChildIndex();
-      const parentVid = this.wrapperRef.parentNode.getAttribute('id');
-      const parentId = cellUtils.cellVidToId(parentVid);
+      const { childIndex, parentId } = this.getParentCellData();
       this.props.deleteChild({
         parentId,
         childIndex,
@@ -176,10 +173,23 @@ class CellWrapper extends React.Component {
     return wrapperBottom > windowBottom;
   }
 
-  getChildIndex = () => {
-    return [...this.wrapperRef.parentNode.children].filter(el => {
-      return el.className === 'cell-wrapper'
-    }).indexOf(this.wrapperRef);
+  getParentCellData = () => {
+    let el = this.wrapperRef;
+    const cellId = this.props.cellData.cellId;
+    while(el.className !== 'cell-tree' || el.getAttribute('cellid') === cellId) {
+      el = el.parentNode;
+    }
+    const parentId = el.getAttribute('cellid');
+    let index = 0;
+    const children = this.props.cells[parentId].children;
+    for(; index < children.length; index++) {
+      if(children[index].id === cellId) break;
+    }
+    return {
+      parentId,
+      childIndex: index,
+      parentVid: el.getAttribute('cellvid')
+    };
   }
 
   focusNextCell = isDown => {
@@ -194,7 +204,8 @@ class CellWrapper extends React.Component {
       index = isDown ? 0 : vidList.length - 1;
     }
     const nextRefKey = this.getRefKey(vidList[index]);
-    refs[nextRefKey] && refs[nextRefKey].focus({ preventScroll: true });
+    // refs[nextRefKey] && refs[nextRefKey].focus({ preventScroll: true });
+    document.getElementById(nextRefKey).focus();
   }
 
   getIsExpanded = cellVid => {
@@ -219,7 +230,7 @@ class CellWrapper extends React.Component {
     if(this.wrapperRef.clientHeight > this.props.articleRef?.clientHeight) {
       block = "start";
     }
-    if (this.contentRef) this.contentRef.scrollIntoView({
+    if (this.wrapperRef) this.wrapperRef.scrollIntoView({
       behavior: "smooth",
       block,
       inline: "center"
