@@ -68,7 +68,7 @@ class Article extends React.Component {
     if (evt.key.match(/^[jJ]$/)) {
       evt.preventDefault();
       let el = this.articleRef;
-      while(el && el.className !== "cell-wrapper") {
+      while(el && !el.className.match(/^cell-wrapper/)) {
         el = el.firstChild;
       }
       const first = el?.children[1];
@@ -76,10 +76,10 @@ class Article extends React.Component {
     } else if (evt.key.match(/^[kK]$/)) {
       evt.preventDefault();
       let el = this.articleRef;
-      while(el && el.className !== "cell-list") {
+      while(el && !el.className.match(/^cell-list/)) {
         el = el.children[0];
       }
-      while(el && el.className !== "cell-wrapper") {
+      while(el && !el.className.match(/^cell-wrapper/)) {
         el = el.lastChild;
       }
       const last = el?.children[1];

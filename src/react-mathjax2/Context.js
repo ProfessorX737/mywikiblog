@@ -11,7 +11,7 @@ class Context extends React.Component {
   constructor(props) {
     super(props);
     this.state = { loaded: false };
-    this.willUnmount = false;
+    this.unmounted = false;
   }
 
   getChildContext() {
@@ -33,7 +33,7 @@ class Context extends React.Component {
   }
 
   componentWillUnmount() {
-    this.willUnmount = true;
+    this.unmounted = true;
   }
 
   onLoad = () => {
@@ -42,7 +42,7 @@ class Context extends React.Component {
     MathJax.Hub.Config(options);
 
     this.myHook = MathJax.Hub.Register.StartupHook("End", () => {
-      if (this.willUnmount) return;
+      if (this.unmounted) return;
       MathJax.Hub.processSectionDelay = this.props.delay;
 
       if (this.props.didFinishTypeset) {
