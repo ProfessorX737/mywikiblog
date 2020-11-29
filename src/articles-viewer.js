@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Article from "./article";
 import { connect } from "react-redux";
-import { 
+import {
   splitView,
 } from "./redux/actions"
 import CellTabs from "./cell-tabs";
@@ -27,22 +27,22 @@ class _ArticlesViewer extends React.PureComponent {
             />
           ))
         ) : (
-          <div
-            key={this.props.view.id}
-            className="articles-viewer"
-          >
-            <CellTabs
-              view={this.props.view}
-              viewPath={this.props.viewPath}
-            />
-            {this.props.cells[this.props.view.currTabId] && (
-              <Article
+            <div
+              key={this.props.view.id}
+              className="articles-viewer"
+            >
+              <CellTabs
                 view={this.props.view}
                 viewPath={this.props.viewPath}
               />
-            )}
-          </div>
-        )}
+              {this.props.cells[this.props.view.currTabId] && (
+                <Article
+                  view={this.props.view}
+                  viewPath={this.props.viewPath}
+                />
+              )}
+            </div>
+          )}
       </div>
     );
   }
