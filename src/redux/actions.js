@@ -255,3 +255,12 @@ export function moveChildCell({
     payload: arguments[0]
   })
 }
+
+export function setShowScaffolding({
+  show,
+}) {
+  return ({
+    type: types.SHOW_SCAFFOLDING,
+    payload: arguments[0],
+  })
+}

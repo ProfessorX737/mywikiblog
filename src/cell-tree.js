@@ -65,9 +65,9 @@ class CellTree extends React.Component {
 
   handleSort = evt => {
     // only allow drag and drop cell effect if dragging between cell divs
-    if(evt.srcElement !== evt.from) return;
+    if (evt.srcElement !== evt.from) return;
     const cellClassName = evt.from.getAttribute('class').split(/\s*/)[0];
-    if(!evt.to.getAttribute('class').match(cellClassName)) return;
+    if (!evt.to.getAttribute('class').match(cellClassName)) return;
     this.props.dragAndDropCellEffect({
       oldParentId: cellUtils.cellVidToId(evt.from.id),
       newParentId: cellUtils.cellVidToId(evt.to.id),
@@ -84,11 +84,12 @@ class CellTree extends React.Component {
         renderCell={this.props.renderCell}
         view={this.props.view}
         cells={this.props.cells}
+        showScaffolding={this.props.showScaffolding}
         setCellChildren={this.props.setCellChildren}
         countCell={() => this.cellIndex++}
         countCellId={this.countCellId}
         handleSort={this.handleSort}
-        articlePxWidth={this.props.articlePxWidth} 
+        articlePxWidth={this.props.articlePxWidth}
       />
     )
   }
@@ -111,6 +112,7 @@ function CellTreeRecurse(props) {
     countCell,
     countCellId,
     handleSort,
+    showScaffolding,
     articlePxWidth
   } = props;
   const children = cells[cellId]?.children || [];
@@ -137,12 +139,15 @@ function CellTreeRecurse(props) {
           }}
           style={{
             width: `${isEmpty ? articlePxWidth : 'fit-content'}`,
+            border: `${showScaffolding ? '1px dashed white' : 'none'}`,
           }}
           viewId={view.id}
           cellId={cellId}
           id={cellVid}
           handle=".cell-handle"
           onSort={handleSort}
+          onStart={cellUtils.handleDragStart}
+          onEnd={cellUtils.handleDragEnd}
         >
           {children.map((child, index) => {
             return (
@@ -153,6 +158,7 @@ function CellTreeRecurse(props) {
                 view={props.view}
                 cells={cells}
                 setCellChildren={setCellChildren}
+                showScaffolding={showScaffolding}
                 countCell={countCell}
                 countCellId={countCellId}
                 handleSort={handleSort}
@@ -162,7 +168,7 @@ function CellTreeRecurse(props) {
           })}
         </ReactSortable>
       )}
-      </div>
+    </div>
   )
 }
 
@@ -184,7 +190,10 @@ CellTreeRecurse.defaultProps = {
 }
 
 export default connect(
-  state => ({ cells: state.view.cells }),
+  state => ({
+    cells: state.view.cells,
+    showScaffolding: state.view.showScaffolding,
+  }),
   {
     setCellChildren,
     dragAndDropCellEffect

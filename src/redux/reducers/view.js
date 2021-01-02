@@ -14,7 +14,8 @@ const initialState = {
     tabsView: {},
     children: []
   },
-  cells: {}
+  cells: {},
+  showScaffolding: false,
 }
 
 export default function (state = initialState, action) {
@@ -397,6 +398,10 @@ export default function (state = initialState, action) {
       }
       return update(update(state, updateOb1), updateOb2);
     }
+    case types.SHOW_SCAFFOLDING: {
+      const { show } = action.payload;
+      return update(state, { showScaffolding: { $set: show } });
+    }
     default: {
       return state;
     }
@@ -404,13 +409,13 @@ export default function (state = initialState, action) {
 }
 
 const mutateDeleteTabId = (view, id) => {
-  for(let i = 0; i < view.tabs.length; i++) {
-    if(view.tabs[i].id === id) {
+  for (let i = 0; i < view.tabs.length; i++) {
+    if (view.tabs[i].id === id) {
       view.tabs.splice(i, 1);
       break;
     }
   }
-  for(let i = 0; i < view.children.length; i++) {
+  for (let i = 0; i < view.children.length; i++) {
     mutateDeleteTabId(view.children[i], id);
   }
 }

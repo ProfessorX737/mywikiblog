@@ -1,3 +1,5 @@
+import store from './redux/store';
+import * as actions from './redux/actions';
 
 export const makeCellVid = ({ cellId, count }) => {
   return `${cellId}_${count}`;
@@ -33,3 +35,11 @@ export const getCellVidList = ({
   }
   return keys;
 };
+
+export const handleDragStart = evt => {
+  store.dispatch(actions.setShowScaffolding({ show: true }));
+}
+
+export const handleDragEnd = evt => {
+  store.dispatch(actions.setShowScaffolding({ show: false }));
+}
