@@ -9,14 +9,15 @@ import {
   dragAndDropCellEffect
 } from "./redux/actions";
 import * as cellUtils from './cell-utils'
+import store from './redux/store';
 
 // ReactSortable.prototype.onChoose = function (evt) { };
 // ReactSortable.prototype.onUnchoose = function (evt) { };
 
-const dragGroup = cells => ({
+const dragGroup = () => ({
   name: "cells",
   put: (to, from, el) => {
-    const toChilds = cells[to.options.cellId].children;
+    const toChilds = store.getState().view.cells[to.options.cellId].children;
     // If the target article already contains a cell with the same id don't add it
     const cellId = el.getAttribute("cellid");
     for (let i = 0; i < toChilds.length; i++) {
@@ -129,7 +130,7 @@ function CellTreeRecurse(props) {
           className={
             clsx('cell-list', isEmpty && 'empty-article', isRoot && 'root-list')
           }
-          group={dragGroup(cells)}
+          group={dragGroup()}
           list={children}
           setList={newChildren => {
             setCellChildren({
@@ -139,7 +140,7 @@ function CellTreeRecurse(props) {
           }}
           style={{
             width: `${isEmpty ? articlePxWidth : 'fit-content'}`,
-            border: `${showScaffolding ? '1px dashed white' : 'none'}`,
+            border: `${(showScaffolding || (isExpanded && isEmpty)) ? '1px dashed white' : 'none'}`,
           }}
           viewId={view.id}
           cellId={cellId}
