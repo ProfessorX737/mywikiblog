@@ -84,24 +84,11 @@ class ViewOptions extends React.Component {
           getContentAnchorEl={null}
           open={Boolean(this.state.menuAnchor)}
         >
-          <MenuItem>
-            <VerticalSplit
-              onClick={() => {this.onSplitView("row")}}
-            />
+          <MenuItem onClick={() => {this.onSplitView("row")}}>
+            <VerticalSplit />
           </MenuItem>
-          <MenuItem>
-            <HorizontalSplit
-              onClick={() => {this.onSplitView("column")}}
-            />
-          </MenuItem>
-          <MenuItem>
-              <Delete
-                style={{color: this.state.deleteMode ? "red" : "black"}}
-                onClick={() => {
-                  this.onMenuClose();
-                  this.setState({ deleteMode: !this.state.deleteMode });
-                }}
-              />
+          <MenuItem onClick={() => {this.onSplitView("column")}}>
+            <HorizontalSplit />
           </MenuItem>
           {this.props.viewPath.length > 0 && (
             <MenuItem
