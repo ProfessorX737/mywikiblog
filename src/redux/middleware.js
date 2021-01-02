@@ -285,11 +285,11 @@ const dragAndDropCellEffectLogic = store => next => async action => {
       oldParentId,
       newParentId,
       childOldIndex,
-      childNewIndex
+      childNewIndex,
     } = action.payload;
     try {
       const cells = store.getState().view.cells;
-      const childId = cells[newParentId].id;
+      const childId = cells[newParentId].children[childNewIndex].id;
       if(oldParentId === newParentId) {
         // move the cell
         await axios.patch(`${routeStem}/relink-cell`, {
@@ -309,12 +309,21 @@ const dragAndDropCellEffectLogic = store => next => async action => {
     } catch (e) {
       console.log(e);
       // undo the drag and drop operation
-      next(actions.moveChildCell({
-        toParentId: oldParentId,
-        fromParentId: newParentId,
-        fromIndex: childNewIndex,
-        toIndex: childOldIndex
-      }));
+      if(oldParentId === newParentId) {
+        next(actions.moveChildCell({
+          toParentId: oldParentId,
+          fromParentId: newParentId,
+          fromIndex: childNewIndex,
+          toIndex: childOldIndex
+        }));
+      } else {
+        // since when dragging between articles we just 'copy' the cell we just want
+        // to delete the new copy at the new location
+        next(actions.deleteChild({
+          parentId: newParentId,
+          childIndex: childNewIndex
+        }))
+      }
     }
   } else {
     next(action);

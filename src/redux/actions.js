@@ -235,7 +235,7 @@ export function dragAndDropCellEffect({
   oldParentId,
   newParentId,
   childOldIndex,
-  childNewIndex
+  childNewIndex,
 }) {
   return ({
     type: types.DRAG_AND_DROP_CELL_EFFECT,

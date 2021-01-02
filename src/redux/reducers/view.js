@@ -375,23 +375,27 @@ export default function (state = initialState, action) {
         fromParentId,
         fromIndex,
         toIndex,
-        childId,
       } = action.payload;
-      const updateOb = {
+      const childId = state.cells[fromParentId].children[fromIndex].id;
+      const updateOb1 = {
         cells: {
           [fromParentId]: {
             children: {
               $splice: [[fromIndex, 1]]
             }
           },
+        }
+      }
+      const updateOb2 = {
+        cells: {
           [toParentId]: {
             children: {
               $splice: [[toIndex, 0, { id: childId }]]
             }
-          }
+          },
         }
       }
-      return update(state, updateOb);
+      return update(update(state, updateOb1), updateOb2);
     }
     default: {
       return state;

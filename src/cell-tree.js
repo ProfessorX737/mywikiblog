@@ -39,43 +39,6 @@ const dragGroup = cells => ({
   }
 })
 
-// function CellTree(props) {
-
-//   let cellIndex = 0;
-//   let cellIdCount = {};
-
-//   const countCellId = cellId => {
-//     let count = cellIdCount[cellId];
-//     count = count ? count + 1 : 1;
-//     cellIdCount[cellId] = count;
-//     return count;
-//   }
-
-//   const handleSort = evt => {
-//     if (evt.srcElement === evt.from) {
-//       // this.props.dragAndDropCellEffect({
-//       //   oldParentId:
-//       // })
-//     }
-//   }
-
-//   return (
-//     <CellTreeRecurse
-//       isRoot={true}
-//       cellId={props.view.currTabId}
-//       renderCell={props.renderCell}
-//       view={props.view}
-//       cells={props.cells}
-//       setCellChildren={props.setCellChildren}
-//       countCell={() => cellIndex++}
-//       countCellId={countCellId}
-//       handleSort={handleSort}
-//       articlePxWidth={props.articlePxWidth}
-//     />
-//   )
-
-// }
-
 class CellTree extends React.Component {
   constructor(props) {
     super(props)
@@ -101,11 +64,16 @@ class CellTree extends React.Component {
   }
 
   handleSort = evt => {
-    if (evt.srcElement === evt.from) {
-      // this.props.dragAndDropCellEffect({
-      //   oldParentId:
-      // })
-    }
+    // only allow drag and drop cell effect if dragging between cell divs
+    if(evt.srcElement !== evt.from) return;
+    const cellClassName = evt.from.getAttribute('class').split(/\s*/)[0];
+    if(!evt.to.getAttribute('class').match(cellClassName)) return;
+    this.props.dragAndDropCellEffect({
+      oldParentId: cellUtils.cellVidToId(evt.from.id),
+      newParentId: cellUtils.cellVidToId(evt.to.id),
+      childOldIndex: evt.oldIndex,
+      childNewIndex: evt.newIndex,
+    });
   }
 
   render() {
