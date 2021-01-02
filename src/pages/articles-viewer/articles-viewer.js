@@ -4,7 +4,7 @@ import Article from "./article";
 import { connect } from "react-redux";
 import {
   splitView,
-} from "./redux/actions"
+} from "../../redux/actions"
 import CellTabs from "./cell-tabs";
 import "./articles-viewer.css"
 

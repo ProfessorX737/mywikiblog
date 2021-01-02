@@ -3,7 +3,7 @@ import { v1 as uuidv1 } from "uuid";
 import {
   getUpdateAtPathOb,
   removeListItemAtPath
-} from "../../tree-utils"
+} from "../../pages/articles-viewer/tree-utils"
 import * as types from "../actionTypes"
 
 const initialState = {

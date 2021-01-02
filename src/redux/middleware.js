@@ -3,7 +3,7 @@ import * as actions from "./actions";
 import axios from 'axios';
 import assert from 'assert';
 import * as constants from '../constants';
-import * as cellUtils from '../cell-utils';
+import * as cellUtils from '../pages/articles-viewer/cell-utils';
 
 const routeStem = "http://localhost:5000/api";
 

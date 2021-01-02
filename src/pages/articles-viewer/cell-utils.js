@@ -1,5 +1,5 @@
-import store from './redux/store';
-import * as actions from './redux/actions';
+import store from '../../redux/store';
+import * as actions from '../../redux/actions';
 
 export const makeCellVid = ({ cellId, count }) => {
   return `${cellId}_${count}`;

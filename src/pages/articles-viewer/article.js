@@ -7,7 +7,7 @@ import CellWrapper from './cell-wrapper'
 import MarkdownCell from "./markdown-cell"
 import {
   fetchChildCells,
-} from './redux/actions'
+} from '../../redux/actions'
 import ReactResizeDetector from 'react-resize-detector'
 
 class Article extends React.Component {

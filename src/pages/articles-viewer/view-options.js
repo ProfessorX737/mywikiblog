@@ -16,7 +16,7 @@ import {
 import {
   splitView,
   deleteView
-} from "./redux/actions";
+} from "../../redux/actions";
 
 const Hmenu = withStyles({
   paper: {

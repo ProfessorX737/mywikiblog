@@ -12,7 +12,7 @@ import {
   setTabs,
   setTabView,
   closeTab
-} from "./redux/actions"
+} from "../../redux/actions"
 import assert from "assert"
 import ViewOptions from "./view-options"
 

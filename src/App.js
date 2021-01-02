@@ -3,7 +3,7 @@ import "./styles.css";
 import TitleBar from "./title-bar";
 import ViewPort from "./view-port";
 import NavPane from "./nav-pane";
-import ArticlesViewer from "./articles-viewer";
+import ArticlesViewer from "./pages/articles-viewer";
 import assert from "assert";
 import { connect } from "react-redux";
 import {
@@ -12,20 +12,17 @@ import {
 import * as constants from './constants';
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      navMenuOpen: false,
-      view: {
-        id: "1",
-        currTabId: 0,
-        tabs: [],
-        tabsView: {},
-        children: []
-      },
-      articles: {}
-    };
-  }
+  state = {
+    navMenuOpen: false,
+    view: {
+      id: "1",
+      currTabId: 0,
+      tabs: [],
+      tabsView: {},
+      children: []
+    },
+    articles: {}
+  };
 
   componentDidMount() {
     this.props.localStorageInit();
@@ -33,7 +30,7 @@ class App extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     try {
-      assert.deepEqual(prevProps.viewTree, this.props.viewTree);
+      assert.deepStrictEqual(prevProps.viewTree, this.props.viewTree);
     } catch (e) {
       // they are different update the view in local storage
       localStorage.setItem(

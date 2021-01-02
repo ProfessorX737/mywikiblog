@@ -10,7 +10,7 @@ import { connect } from "react-redux";
 import "./cell-wrapper.css";
 import {
   fetchChildCellsToggleExpand
-} from "./redux/actions";
+} from "../../redux/actions";
 
 function CellHandle(props) {
   const {

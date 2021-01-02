@@ -7,9 +7,9 @@ import clsx from 'clsx'
 import {
   setCellChildren,
   dragAndDropCellEffect
-} from "./redux/actions";
+} from "../../redux/actions";
 import * as cellUtils from './cell-utils'
-import store from './redux/store';
+import store from '../../redux/store';
 
 // ReactSortable.prototype.onChoose = function (evt) { };
 // ReactSortable.prototype.onUnchoose = function (evt) { };

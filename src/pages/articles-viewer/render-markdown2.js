@@ -1,6 +1,6 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
-import MathJax from "./react-mathjax2";
+import MathJax from "../../react-mathjax2";
 import RemarkMathPlugin from "remark-math";
 import PropTypes from "prop-types";
 import htmlParser from "react-markdown/plugins/html-parser";

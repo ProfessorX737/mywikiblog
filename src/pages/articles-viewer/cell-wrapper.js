@@ -7,7 +7,7 @@ import {
   patchContentToggleEdit,
   postNewChildCellExpand,
   deleteChild
-} from "./redux/actions";
+} from "../../redux/actions";
 import "./cell-wrapper.css";
 import CellHandle from './cell-handle';
 import * as cellUtils from './cell-utils';

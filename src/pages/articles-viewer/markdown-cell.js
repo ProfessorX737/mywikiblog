@@ -5,7 +5,7 @@ import MarkdownEditor from "./markdown-editor";
 import RenderMarkdown2 from "./render-markdown2";
 import {
   setCellContent,
-} from "./redux/actions";
+} from "../../redux/actions";
 
 function MarkdownCell(props) {
   const cellData = {
