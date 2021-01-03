@@ -1,4 +1,4 @@
-// view.js
+// view action types
 export const INSERT_NEW_CHILD_CELL_EXPAND = "INSERT_NEW_CHILD_CELL_EXPAND";
 export const INSERT_CELLS = "INSERT_CELLS";
 export const SET_CELL_CONTENT = "SET_CELL_CONTENT";
@@ -24,3 +24,7 @@ export const LOCAL_STORAGE_INIT = "LOCAL_STORAGE_INIT";
 export const DRAG_AND_DROP_CELL_EFFECT = "DRAG_AND_DROP_CELL_EFFECT";
 export const MOVE_CHILD_CELL = "MOVE_CHILD_CELL";
 export const SHOW_SCAFFOLDING = "SHOW_SCAFFOLDING";
+
+// user action types
+export const SET_LOGGED_IN = "SET_LOGGED_IN";
+export const SET_EMAIL = "SET_EMAIL";

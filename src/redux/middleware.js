@@ -2,8 +2,8 @@ import * as types from "./actionTypes";
 import * as actions from "./actions";
 import axios from 'axios';
 import assert from 'assert';
-import * as constants from '../constants';
 import * as cellUtils from '../pages/articles-viewer/cell-utils';
+import * as storage from '../common/localStorage';
 
 const routeStem = "http://localhost:5000/api";
 
@@ -212,8 +212,7 @@ const deleteChildLogic = store => next => async action => {
 const localStorageInitLogic = store => next => async action => {
   if (action.type === types.LOCAL_STORAGE_INIT) {
     try {
-      const lsKey = constants.LOCAL_STORAGE_KEY;
-      const viewTree = JSON.parse(localStorage.getItem(lsKey));
+      const viewTree = storage.getView();
       if (viewTree) {
         // local storage exists so recreate the view
         // get required cell ids used in cached view
