@@ -1,0 +1,10 @@
+.app-bar {
+  background-color: rgb(236, 236, 236);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1em;
+}
+
+.auth-link {
+  padding: 1em;
+}

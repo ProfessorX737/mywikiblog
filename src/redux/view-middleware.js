@@ -1,11 +1,10 @@
 import * as types from "./actionTypes";
 import * as actions from "./actions";
-import axios from 'axios';
+import axios from '../common/api-client';
 import assert from 'assert';
 import * as cellUtils from '../pages/articles-viewer/cell-utils';
 import * as storage from '../common/localStorage';
-
-const routeStem = "http://localhost:5000/api";
+import { routeStem } from '../constants/routes';
 
 const setCellChildrenLogic = store => next => action => {
   if (action.type === types.SET_CELL_CHILDREN) {
@@ -128,11 +127,17 @@ const patchContentToggleEditLogic = store => next => async action => {
         console.log(e);
       }
     } else {
-      next(actions.toggleCellEdit({
-        view,
-        viewPath,
-        cellVid
-      }))
+      try {
+        // check if the user is authenticated before allowing them to edit
+        await axios.get(`${routeStem}/is-auth`);
+        next(actions.toggleCellEdit({
+          view,
+          viewPath,
+          cellVid
+        }))
+      } catch (e) {
+        console.log(e);
+      }
     }
   } else {
     next(action);
@@ -306,8 +311,8 @@ const dragAndDropCellEffectLogic = store => next => async action => {
         })
       }
     } catch (e) {
-      console.log(e);
       // undo the drag and drop operation
+      console.log(e);
       if(oldParentId === newParentId) {
         next(actions.moveChildCell({
           toParentId: oldParentId,

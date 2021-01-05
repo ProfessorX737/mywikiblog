@@ -26,5 +26,6 @@ export const MOVE_CHILD_CELL = "MOVE_CHILD_CELL";
 export const SHOW_SCAFFOLDING = "SHOW_SCAFFOLDING";
 
 // user action types
-export const SET_LOGGED_IN = "SET_LOGGED_IN";
-export const SET_EMAIL = "SET_EMAIL";
+export const LOGIN = "LOGIN";
+export const LOGOUT = "LOGOUT";
+export const UPDATE_AUTH_STATUS = "UPDATE_AUTH_STATUS";

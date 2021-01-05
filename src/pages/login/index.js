@@ -4,7 +4,7 @@ import TextField from '../../components/text-field';
 import * as Form from '../../components/form-page';
 import store from '../../redux/store';
 import * as routes from '../../constants/routes';
-import * as userActions from '../../redux/user-actions';
+import * as authActions from '../../redux/auth-actions';
 
 export default function Login() {
   const [errorMsg, setErrorMsg] = React.useState('');
@@ -12,9 +12,7 @@ export default function Login() {
   const [password, setPassword] = React.useState('');
   const handleSubmit = async (e) => {
     e.preventDefault();
-    store.dispatch(userActions.setEmail({ email }));
-    store.dispatch(userActions.setLoggedIn({ isLoggedIn: true }));
-    history.push(routes.home);
+    store.dispatch(authActions.login({ email, password }));
   }
   const handleEmailChange = (e) => {
     setErrorMsg('');

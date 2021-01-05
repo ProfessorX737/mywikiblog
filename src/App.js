@@ -9,18 +9,18 @@ import assert from "assert";
 import { connect } from "react-redux";
 import { ThemeProvider } from 'styled-components';
 
-import TitleBar from "./components/title-bar";
+import AppBar from "./components/app-bar";
 import NavPane from "./components/nav-pane";
 import ArticlesViewer from "./pages/articles-viewer";
-import {
-  localStorageInit
-} from "./redux/actions";
+import { localStorageInit } from "./redux/actions";
+import { updateAuthStatus } from './redux/auth-actions';
 import './App.css';
 import history from './common/history';
 import * as storage from './common/localStorage';
 import * as routes from './constants/routes';
 import theme from './constants/theme';
 import Login from './pages/login';
+import store from './redux/store';
 
 class App extends React.Component {
   state = {
@@ -36,7 +36,14 @@ class App extends React.Component {
   };
 
   componentDidMount() {
-    this.props.localStorageInit();
+    store.dispatch(localStorageInit());
+    store.dispatch(updateAuthStatus());
+    // When changing the route to the home page we want to reinitialize the local storage
+    // in case there are any changes in authentication or just updates in the blog
+    history.listen((location) => {
+      store.dispatch(updateAuthStatus());
+      if (location.pathname === routes.home) store.dispatch(localStorageInit());
+    })
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -55,28 +62,28 @@ class App extends React.Component {
 
   render() {
     return (
-      <ThemeProvider theme={theme}>
-        <div className="view-port">
-          <TitleBar
-            navMenuOpen={this.state.navMenuOpen}
-            setNavMenuOpen={this.setNavMenuOpen}
-          />
-          <div className="not-header">
-            <NavPane
+      <Router history={history}>
+        <ThemeProvider theme={theme}>
+          <div className="view-port">
+            <AppBar
               navMenuOpen={this.state.navMenuOpen}
               setNavMenuOpen={this.setNavMenuOpen}
             />
-            <Router history={history}>
+            <div className="not-header">
+              <NavPane
+                navMenuOpen={this.state.navMenuOpen}
+                setNavMenuOpen={this.setNavMenuOpen}
+              />
               <Switch>
                 <Route exact path={routes.home}>
                   <ArticlesViewer view={this.props.viewTree} />
                 </Route>
                 <Route path={routes.login} component={Login} />
               </Switch>
-            </Router>
+            </div>
           </div>
-        </div>
-      </ThemeProvider>
+        </ThemeProvider>
+      </Router>
     );
   }
 }
@@ -88,5 +95,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { localStorageInit }
+  null,
 )(App);

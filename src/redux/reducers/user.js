@@ -9,13 +9,12 @@ const initialState = {
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case types.SET_LOGGED_IN: {
-      const { isLoggedIn } = action.payload;
-      return update(state, { loggedIn: { $set: isLoggedIn } });
-    }
-    case types.SET_EMAIL: {
+    case types.LOGIN: {
       const { email } = action.payload;
-      return update(state, { email: { $set: email } });
+      return update(state, { email: { $set: email ? email : state.email }, loggedIn: { $set: true } });
+    }
+    case types.LOGOUT: {
+      return update(state, { loggedIn: { $set: false } });
     }
     default: {
       return state
