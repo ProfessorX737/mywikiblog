@@ -72,7 +72,7 @@ class CellTabs extends React.Component {
   onSetTabs = newTabs => {
     try {
       assert.deepEqual(this.props.view.tabs, newTabs);
-    } catch(e) {
+    } catch (e) {
       this.props.setTabs({
         viewPath: this.props.viewPath,
         newTabs
@@ -158,7 +158,7 @@ class CellTabs extends React.Component {
               this.myrefs["sortable-tabs"] = el?.ref?.current;
             }}
             list={this.props.view.tabs}
-            setList={tabs => {this.onSetTabs(tabs)}}
+            setList={tabs => { this.onSetTabs(tabs) }}
             className="sortable-tabs"
             // filter=".dummy-tab"
             onSort={evt => { this.handleSort(evt) }}
@@ -179,6 +179,8 @@ class CellTabs extends React.Component {
           >
             {this.props.view.tabs.map((tab, index) => {
               const key = this.getTabKey(tab.id);
+              // we don't want the option to delete the current user cell
+              const isUserTab = this.props.cells[tab.id].email === this.props.email;
               return (
                 <div
                   ref={el => {
@@ -197,19 +199,21 @@ class CellTabs extends React.Component {
                   }}
                 >
                   {this.renderTabContent(tab)}
-                  <div className="close-tab-btn-wrapper">
-                    <div
-                      className="close-tab-btn"
-                      onClick={evt => {this.onCloseTab(evt, tab.id, index)}}
-                    >
-                      <Close
-                        style={{
-                          fontSize: "14px",
-                          borderRadius: "10px"
-                        }}
-                      />
+                  { !isUserTab &&
+                    <div className="close-tab-btn-wrapper">
+                      <div
+                        className="close-tab-btn"
+                        onClick={evt => { this.onCloseTab(evt, tab.id, index) }}
+                      >
+                        <Close
+                          style={{
+                            fontSize: "14px",
+                            borderRadius: "10px"
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
+                  }
                 </div>
               );
             })}
@@ -217,7 +221,7 @@ class CellTabs extends React.Component {
         </Scrollbars>
         <div
           className="add-tab-btn"
-          onClick={() => {}}
+          onClick={() => { }}
         >
           <Add fontSize="small" />
         </div>
@@ -236,7 +240,10 @@ CellTabs.propTypes = {
 };
 
 export default connect(
-  state => ({ cells: state.view.cells }), 
+  state => ({
+    cells: state.view.cells,
+    email: state.user.email,
+  }),
   {
     changeTab,
     setTabs,

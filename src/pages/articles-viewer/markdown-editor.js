@@ -47,6 +47,7 @@ class MarkdownEditor extends React.Component {
       mode: "markdown",
       extraKeys: { "Ctrl-Space": "autocomplete" },
       lineWrapping: this.props.lineWrapping,
+      smartIndent: false,
     };
   }
 

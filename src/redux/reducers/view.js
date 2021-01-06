@@ -31,7 +31,7 @@ export default function (state = initialState, action) {
         childCells,
       } = action.payload;
       const childVid = `${newId}_1`;
-      let cellViews = { [childVid]: getDefaultCellView(childVid) };
+      let cellViews = { [childVid]: getDefaultCellView(childVid, true) };
       // check if parentCellView exists
       const parentCellView = view.tabsView[view.currTabId]?.[parentVid];
       if (parentCellView) {
@@ -430,11 +430,11 @@ const simplifyView = view => {
   return view;
 };
 
-const getDefaultCellView = (vid) => {
+const getDefaultCellView = (vid, isEditing = false, isExpanded = false) => {
   return {
     vid,
-    isEditing: false,
-    isExpanded: false
+    isEditing,
+    isExpanded,
   }
 }
 
