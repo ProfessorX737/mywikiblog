@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/mywikiblog/static/css/main.f503e2f1.chunk.css",
+    "main.js": "/mywikiblog/static/js/main.34e0c1dd.chunk.js",
+    "main.js.map": "/mywikiblog/static/js/main.34e0c1dd.chunk.js.map",
+    "runtime-main.js": "/mywikiblog/static/js/runtime-main.1a2791a6.js",
+    "runtime-main.js.map": "/mywikiblog/static/js/runtime-main.1a2791a6.js.map",
+    "static/css/2.56a1fa8e.chunk.css": "/mywikiblog/static/css/2.56a1fa8e.chunk.css",
+    "static/js/2.e804a4e8.chunk.js": "/mywikiblog/static/js/2.e804a4e8.chunk.js",
+    "static/js/2.e804a4e8.chunk.js.map": "/mywikiblog/static/js/2.e804a4e8.chunk.js.map",
+    "index.html": "/mywikiblog/index.html",
+    "precache-manifest.db9ad9821063205656057fed3b7413da.js": "/mywikiblog/precache-manifest.db9ad9821063205656057fed3b7413da.js",
+    "service-worker.js": "/mywikiblog/service-worker.js",
+    "static/css/2.56a1fa8e.chunk.css.map": "/mywikiblog/static/css/2.56a1fa8e.chunk.css.map",
+    "static/css/main.f503e2f1.chunk.css.map": "/mywikiblog/static/css/main.f503e2f1.chunk.css.map",
+    "static/js/2.e804a4e8.chunk.js.LICENSE.txt": "/mywikiblog/static/js/2.e804a4e8.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.1a2791a6.js",
+    "static/css/2.56a1fa8e.chunk.css",
+    "static/js/2.e804a4e8.chunk.js",
+    "static/css/main.f503e2f1.chunk.css",
+    "static/js/main.34e0c1dd.chunk.js"
+  ]
+}
