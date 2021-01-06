@@ -1,4 +1,4 @@
-export const domain = "http://142.93.76.166";
+export const domain = "https://xavierunderstands";
 export const routeStem = `${domain}/api`;
 
 export const home = "/";
