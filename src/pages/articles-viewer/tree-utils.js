@@ -14,6 +14,16 @@ export function unflatten(path) {
   return { obj, lastObj };
 }
 
+export function getFirstViewPath(view) {
+  const path = [];
+  let curr = view;
+  while(curr.children.length !== 0) {
+    path.push('children', 0);
+    curr = view.children[0];
+  }
+  return path;
+}
+
 /**
  * Change the node's specified attribute at the path specified
  * @param {Object} params

@@ -1,10 +1,9 @@
 import React from "react";
-import "./sortable-tabs.css";
+import "./cell-tabs.css";
 import { ReactSortable } from "react-sortablejs";
 import PropTypes from "prop-types";
 import Close from "@material-ui/icons/Close";
 import Add from "@material-ui/icons/Add";
-import { Scrollbars } from "react-custom-scrollbars";
 import clsx from "clsx";
 import { connect } from "react-redux";
 import {
@@ -15,6 +14,7 @@ import {
 } from "../../redux/actions"
 import assert from "assert"
 import ViewOptions from "./view-options"
+import RenderMarkdown from './render-markdown2';
 
 class CellTabs extends React.Component {
 
@@ -120,7 +120,7 @@ class CellTabs extends React.Component {
   renderTabContent = tab => {
     const content = this.props.cells[tab.id]?.content;
     return (
-      <div style={{ whiteSpace: "nowrap", minWidth: "100px" }}>{content}</div>
+      <RenderMarkdown source={content} style={{ minWidth: "100px" }} />
     );
   };
 
@@ -137,88 +137,71 @@ class CellTabs extends React.Component {
   render() {
     this.tabIdCount = {};
     return (
-      <div
-        className="sortable-tabs-toolbar"
-        onWheel={e => {
-          e.stopPropagation();
-          const delta = this.myrefs.scrollbar.getScrollLeft();
-          this.myrefs["scrollbar"].scrollLeft(delta + e.deltaY);
-          return false;
-        }}
-      >
-        <Scrollbars
+      <div className="sortable-tabs-toolbar">
+        <ReactSortable
           ref={el => {
-            this.myrefs["scrollbar"] = el;
+            this.myrefs["sortable-tabs"] = el?.ref?.current;
           }}
-          style={{ height: "2.1em" }}
-          autoHide
-        >
-          <ReactSortable
-            ref={el => {
-              this.myrefs["sortable-tabs"] = el?.ref?.current;
-            }}
-            list={this.props.view.tabs}
-            setList={tabs => { this.onSetTabs(tabs) }}
-            className="sortable-tabs"
-            // filter=".dummy-tab"
-            onSort={evt => { this.handleSort(evt) }}
-            setData={this.handleDataOnDrag}
-            onAdd={this.handleTabAdd}
-            group={{
-              name: "tabs",
-              put: ["cells", "tabs"],
-              pull: (to, from) => {
-                if (to.options.group.name === "cells") {
-                  return "clone";
-                } else if (to.options.group.name === "tabs") {
-                  return true;
-                }
-                return false;
+          list={this.props.view.tabs}
+          setList={tabs => { this.onSetTabs(tabs) }}
+          className="sortable-tabs"
+          onSort={evt => { this.handleSort(evt) }}
+          setData={this.handleDataOnDrag}
+          onAdd={this.handleTabAdd}
+          group={{
+            name: "tabs",
+            put: ["cells", "tabs"],
+            pull: (to, from) => {
+              if (to.options.group.name === "cells") {
+                return "clone";
+              } else if (to.options.group.name === "tabs") {
+                return true;
               }
-            }}
-          >
-            {this.props.view.tabs.map((tab, index) => {
-              const key = this.getTabKey(tab.id);
-              // we don't want the option to delete the current user cell
-              const isUserTab = this.props.cells[tab.id].email === this.props.email;
-              return (
-                <div
-                  ref={el => {
-                    this.setTabRef(el, tab.id);
-                  }}
-                  key={key}
-                  id={tab.id}
-                  className={clsx(
-                    tab.id === this.props.view.currTabId
-                      ? "sel-article-tab"
-                      : "article-tab"
-                  )}
-                  onClick={() => {
-                    this.onChangeTab(tab.id);
-                    this.myrefs[`tab${tab.id}`].scrollIntoView();
-                  }}
-                >
-                  {this.renderTabContent(tab)}
-                  { !isUserTab &&
-                    <div className="close-tab-btn-wrapper">
-                      <div
-                        className="close-tab-btn"
-                        onClick={evt => { this.onCloseTab(evt, tab.id, index) }}
-                      >
-                        <Close
-                          style={{
-                            fontSize: "14px",
-                            borderRadius: "10px"
-                          }}
-                        />
-                      </div>
+              return false;
+            }
+          }}
+        >
+          {this.props.view.tabs.map((tab, index) => {
+            const key = this.getTabKey(tab.id);
+            // we don't want the option to delete the current user cell
+            const isUserTab = this.props.cells[tab.id].email === this.props.email;
+            return (
+              <div
+                ref={el => {
+                  this.setTabRef(el, tab.id);
+                }}
+                key={key}
+                id={tab.id}
+                className={clsx(
+                  tab.id === this.props.view.currTabId
+                    ? "sel-article-tab"
+                    : "article-tab"
+                )}
+                onClick={() => {
+                  this.onChangeTab(tab.id);
+                  this.myrefs[`tab${tab.id}`].scrollIntoView();
+                }}
+              >
+                {this.renderTabContent(tab)}
+                { !isUserTab &&
+                  <div className="close-tab-btn-wrapper">
+                    <div
+                      className="close-tab-btn"
+                      onClick={evt => { this.onCloseTab(evt, tab.id, index) }}
+                    >
+                      <Close
+                        style={{
+                          fontSize: "14px",
+                          borderRadius: "10px"
+                        }}
+                      />
                     </div>
-                  }
-                </div>
-              );
-            })}
-          </ReactSortable>
-        </Scrollbars>
+                  </div>
+                }
+              </div>
+            );
+          })}
+        </ReactSortable>
         <div
           className="add-tab-btn"
           onClick={() => { }}

@@ -17,7 +17,7 @@ const loginLogic = store => next => async action => {
         password,
       }).then(res => res.data);
       setToken(data);
-      history.push(routes.home);
+      history.push(routes.getHomeRoute(''));
       next(action);
     } catch (e) {
       console.log(e);

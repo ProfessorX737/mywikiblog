@@ -70,7 +70,7 @@ export function toggleCellEdit({
 
 export function addTab({
   viewPath,
-  tabId
+  tabId,
 }) {
   return ({
     type: types.ADD_TAB,

@@ -23,27 +23,17 @@ import Login from './pages/login';
 import store from './redux/store';
 
 class App extends React.Component {
-  state = {
-    navMenuOpen: false,
-    view: {
-      id: "1",
-      currTabId: 0,
-      tabs: [],
-      tabsView: {},
-      children: []
-    },
-    articles: {}
-  };
+  state = { navMenuOpen: false };
 
   componentDidMount() {
-    store.dispatch(localStorageInit());
-    store.dispatch(updateAuthStatus());
+    const reloadPage = () => {
+      store.dispatch(localStorageInit());
+      store.dispatch(updateAuthStatus());
+    }
+    reloadPage();
     // When changing the route to the home page we want to reinitialize the local storage
     // in case there are any changes in authentication or just updates in the blog
-    history.listen((location) => {
-      store.dispatch(updateAuthStatus());
-      if (location.pathname === routes.home) store.dispatch(localStorageInit());
-    })
+    history.listen(reloadPage);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -75,9 +65,10 @@ class App extends React.Component {
                 setNavMenuOpen={this.setNavMenuOpen}
               />
               <Switch>
-                <Route exact path={routes.home}>
-                  <ArticlesViewer view={this.props.viewTree} />
+                <Route exact path={"/"}>
+                  <Redirect to={routes.getHomeRoute('')} />
                 </Route>
+                <Route path={routes.getHomeRoute()} render={(props) => <ArticlesViewer view={this.props.viewTree} {...props}/>} />
                 <Route path={routes.login} component={Login} />
               </Switch>
             </div>

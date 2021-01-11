@@ -3,8 +3,10 @@ import * as actions from "./actions";
 import axios from '../common/api-client';
 import assert from 'assert';
 import * as cellUtils from '../pages/articles-viewer/cell-utils';
+import * as treeUtils from '../pages/articles-viewer/tree-utils';
 import * as storage from '../common/localStorage';
 import { routeStem } from '../constants/routes';
+import history from '../common/history';
 
 const setCellChildrenLogic = store => next => action => {
   if (action.type === types.SET_CELL_CHILDREN) {
@@ -76,6 +78,8 @@ const fetchChildCellsToggleExpand = store => next => async action => {
         cellVid
       }))
     } else {
+      // expand cell first then fetch
+      next(actions.toggleCellExpand({ view, viewPath, cellVid }));
       try {
         const cells = store.getState().view.cells;
         const children = cells[cellId].children;
@@ -85,14 +89,11 @@ const fetchChildCellsToggleExpand = store => next => async action => {
           params: { ids }
         }).then(res => res.data)
         const newCells = mapCellList(cellList);
-        next(actions.insertChildCellsToggleExpand({
-          view,
-          viewPath,
-          cellVid,
-          newCells
-        }));
+        next(actions.insertCells({ cells: newCells }));
       } catch (e) {
         console.log(e);
+        // collapse cell if error occured
+        next(actions.toggleCellExpand({ view, viewPath, cellVid }));
       }
     }
   } else {
@@ -216,6 +217,7 @@ const deleteChildLogic = store => next => async action => {
 
 const localStorageInitLogic = store => next => async action => {
   if (action.type === types.LOCAL_STORAGE_INIT) {
+    const match = history.location.pathname.match(/\/article\/(\w+)\/?$/);
     try {
       const viewTree = storage.getView();
       if (viewTree) {
@@ -223,20 +225,21 @@ const localStorageInitLogic = store => next => async action => {
         // get required cell ids used in cached view
         const idToExpandMap = getViewIds(viewTree);
         let ids = Object.keys(idToExpandMap);
+        // if the url requests for a specific cell then add it in as well
+        if(match) ids.push(match[1]);
         // get updated versions of these cells
         let cellList = await axios.get(`${routeStem}/cells`, {
           params: { ids }
         }).then(res => res.data);
         let cells = mapCellList(cellList);
-        // some child cells may be implicitly there if never expanded
-        // so fetch these too
+        // some child cells may be implicitly there if never expanded since these are 
+        // by default collapsed so fetch these too. We can't do it all in one go because
+        // the cells from before might have new child cells.
         ids = [];
         for (const id in idToExpandMap) {
           // get all child cell ids of this expanded cell
-          if (idToExpandMap[id]) {
-            if(cells[id]) {
-              ids.push(...reduceCellsToIds(cells[id].children));
-            }
+          if(cells[id]) {
+            ids.push(...reduceCellsToIds(cells[id].children));
           }
         }
         // fetch these potentially missing cells
@@ -248,6 +251,18 @@ const localStorageInitLogic = store => next => async action => {
           cells[cellList[i]._id] = cellList[i];
         }
         const restoredView = recreateView(viewTree, cells);
+        // Add the url requested cell to the first view's tabs if not already there
+        // and set it as the curr tab
+        if(match && cells[match[1]]) {
+          const firstView = treeUtils.getValAtPath({
+            treeData: restoredView,
+            path: treeUtils.getFirstViewPath(restoredView)
+          });
+          if(firstView.tabs.find(({ id }) => id === match[1]) === undefined) {
+            firstView.tabs.push({ id: match[1] });
+          }
+          firstView.currTabId = match[1];
+        }
         next(actions.setStore({
           store: {
             viewTree: restoredView,
@@ -259,20 +274,35 @@ const localStorageInitLogic = store => next => async action => {
         const user = await axios.get(`${routeStem}/user`, {
           params: { email }
         }).then(res => res.data);
+        const cells = { [user._id]: user };
+        const tabs = [{id: user._id}];
+        let currTabId = user._id;
+        const tabsView = { [user._id]: {} };
+        // If the url requests a specific cell id then fetch it
+        if(match) {
+          try {
+            const cell = await axios.get(`${routeStem}/cell`, {
+              params: { id: match[1] }
+            }).then(res => res.data);
+            cells[cell._id] = cell;
+            tabs.push({id: cell._id});
+            currTabId = cell._id;
+            tabsView[cell._id] = {};
+          } catch(e) {
+            console.log("Could not find requested cell id: " + match[1]);
+          }
+        }
         const initStore = {
-          cells: {
-            [user._id]: { ...user, id: user._id }
-          },
+          cells,
           viewTree: {
             id: "1",
-            currTabId: user._id,
-            tabs: [{ id: user._id }],
-            tabsView: {
-              [user._id]: {}
-            },
+            currTabId,
+            tabs,
+            tabsView,
             children: []
           }
         }
+        console.log(initStore);
         next(actions.setStore({ store: initStore }));
       }
     } catch (e) {
@@ -334,6 +364,18 @@ const dragAndDropCellEffectLogic = store => next => async action => {
   }
 }
 
+const addTabLogic = store => next => async action => {
+  if(action.type === types.ADD_TAB) {
+    const { viewPath, tabsId } = action.payload;
+    //viewPath.push('tabs');
+    console.log(viewPath);
+    const tabs = treeUtils.getValAtPath({ treeData: store.getState().view.viewTree, path: viewPath });
+    console.log(tabs);
+  } else {
+    next(action);
+  }
+}
+
 export default [
   fetchCellsLogic,
   fetchChildCellsLogic,
@@ -343,7 +385,8 @@ export default [
   postNewChildCellExpandLogic,
   deleteChildLogic,
   localStorageInitLogic,
-  dragAndDropCellEffectLogic
+  dragAndDropCellEffectLogic,
+  addTabLogic,
 ];
 
 const mapCellList = cellList => {
