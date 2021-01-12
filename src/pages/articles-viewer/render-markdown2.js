@@ -2,6 +2,7 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import MathJax from "../../react-mathjax2";
 import RemarkMathPlugin from "remark-math";
+import emoji from 'remark-emoji';
 import PropTypes from "prop-types";
 import htmlParser from "react-markdown/plugins/html-parser";
 import CodeBlock from "./code-block.js";
@@ -14,7 +15,7 @@ class RenderMarkdown2 extends React.PureComponent {
   render() {
     const newProps = {
       ...this.props,
-      plugins: [RemarkMathPlugin, htmlParser],
+      plugins: [RemarkMathPlugin, htmlParser, emoji],
       renderers: {
         ...this.props.renderers,
         math: props => <MathJax.Node>{props.value}</MathJax.Node>,
