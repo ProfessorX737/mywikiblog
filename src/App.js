@@ -27,13 +27,14 @@ class App extends React.Component {
 
   componentDidMount() {
     const reloadPage = () => {
+      console.log("reloading page");
       store.dispatch(localStorageInit());
       store.dispatch(updateAuthStatus());
     }
     reloadPage();
     // When changing the route to the home page we want to reinitialize the local storage
     // in case there are any changes in authentication or just updates in the blog
-    history.listen(reloadPage);
+    //history.listen(reloadPage);
   }
 
   componentDidUpdate(prevProps, prevState) {

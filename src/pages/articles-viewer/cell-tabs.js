@@ -15,6 +15,8 @@ import {
 import assert from "assert"
 import ViewOptions from "./view-options"
 import RenderMarkdown from './render-markdown2';
+import history from '../../common/history';
+import * as routes from '../../constants/routes';
 
 class CellTabs extends React.Component {
 
@@ -22,6 +24,12 @@ class CellTabs extends React.Component {
     super(props);
     this.myrefs = {};
     this.tabIdCount = {};
+  }
+
+  componentDidUpdate(prevProps) {
+    if(prevProps.view.currTabId !== this.props.view.currTabId) {
+      history.push(routes.getHomeRoute(this.props.view.currTabId));
+    }
   }
 
   onChangeTab = tabId => {
