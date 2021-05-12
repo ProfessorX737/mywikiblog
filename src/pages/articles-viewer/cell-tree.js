@@ -31,7 +31,7 @@ const dragGroup = () => ({
     // if (to.options.viewId !== from.options.viewId) {
     //   return "clone";
     // }
-    // if dragging between two different lists then cline
+    // if dragging between two different lists then clone
     if (to.options.cellId !== from.options.cellId) {
       return "clone";
     }

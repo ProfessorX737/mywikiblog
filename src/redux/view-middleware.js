@@ -223,14 +223,15 @@ const localStorageInitLogic = store => next => async action => {
       if (viewTree) {
         // local storage exists so recreate the view
         // get required cell ids used in cached view
-        const idToExpandMap = getViewIds(viewTree);
-        let ids = Object.keys(idToExpandMap);
+        let idToExpandMap = getViewIds(viewTree);
         // if the url requests for a specific cell then add it in as well
-        if(match) ids.push(match[1]);
+        if(match) idToExpandMap[match[1]] = true;
+        let ids = Object.keys(idToExpandMap);
         // get updated versions of these cells
         let cellList = await axios.get(`${routeStem}/cells`, {
           params: { ids }
         }).then(res => res.data);
+        console.log(cellList)
         let cells = mapCellList(cellList);
         // some child cells may be implicitly there if never expanded since these are 
         // by default collapsed so fetch these too. We can't do it all in one go because
@@ -405,8 +406,7 @@ const reduceCellsToIds = cells => {
 }
 
 // get a map of all (ids => isExpanded) in a view
-const getViewIds = view => {
-  let ids = {};
+const getViewIds = (view, ids = {}) => {
   for (let i = 0; i < view.tabs.length; i++) {
     ids[view.tabs[i].id] = true;
   }
@@ -414,19 +414,15 @@ const getViewIds = view => {
     for (const id in view.tabsView) {
       ids[id] = true;
       for (const vid in view.tabsView[id]) {
-        const id2 = vid.replace(/_[0-9]+$/, '');
-        // if we do not have id or it is expanded then skip
-        if (ids[id2]) continue;
-        ids[id2] = view.tabsView[id][vid].isExpanded;
+        if(view.tabsView[id][vid].isExpanded) {
+          const id2 = vid.replace(/_[0-9]+$/, '');
+          ids[id2] = true;
+        }
       }
     }
   }
   for (let i = 0; i < view.children.length; i++) {
-    const viewIds = getViewIds(view.children[i]);
-    for (const id in viewIds) {
-      if (ids[id]) continue;
-      ids[id] = viewIds[id];
-    }
+    getViewIds(view.children[i], ids);
   }
   return ids;
 }
